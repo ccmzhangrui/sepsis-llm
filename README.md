@@ -18,6 +18,28 @@ Decision Support under Data Missingness.
   after model freeze with no refitting, recalibration, or threshold
   adjustment. See `amsterdam_validation/README.md` for the cohort
   definition, pipeline scripts, machine-readable results, and key numbers.
+- `engine_v2/` (under `amsterdam_validation/`) — Engine v2, the post-hoc
+  architectural revision: interpolation-first lactate imputation with a
+  MIMIC-IV-trained XGBoost fallback for anchor-free trajectories
+  (trained models shipped as JSON).
+- `nejmai_submission/` — reproducibility scripts for the NEJM AI
+  submission package:
+  - `ceiling_diagnostic.py` — information-theoretic ceiling analysis
+    (in-site XGBoost vs oracle vs interpolation vs frozen formula).
+  - `ceiling_search.py` — repeated 5-fold cross-validation comparing
+    interpolation, interpolation+OLS, blend, MIMIC-XGB, and in-site XGB.
+  - `engine_v2.py` — cross-site variant: MIMIC-trained XGBoost tested on
+    AmsterdamUMCdb (all complete cases and the masked-subset view).
+  - `engine_v2_final.py` — final Engine v2 training (saves deployable
+    JSON models) plus Arm A/B benchmark and coverage analysis.
+  - `build_nejmai_figures.py` — journal-standard vector figures
+    (Arial, fonttype 42, no chartjunk) for the main manuscript and
+    supplementary appendix.
+  - `build_nejmai_package.py` — assembly of the main manuscript,
+    supplementary appendix, and cover letter (structured abstract,
+    word-count compliance checks, Table 1-2 transfer).
+  Note: scripts contain absolute paths to the local analysis workspace;
+  edit the `DATA` / `OUT` constants at the top to reproduce.
 
 ## Development and validation cohorts
 
