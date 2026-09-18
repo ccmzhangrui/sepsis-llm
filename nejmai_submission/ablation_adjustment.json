@@ -1,0 +1,158 @@
+{
+  "adjusted": {
+    "mort28": {
+      "outcome": "mort28",
+      "red_rate": 26.2,
+      "green_rate": 16.2,
+      "red_n": "553/2113",
+      "green_n": "298/1836",
+      "crude_rr": 1.61,
+      "crude_rr_ci": [
+        1.42,
+        1.83
+      ],
+      "adjusted_or": 1.89,
+      "adjusted_or_ci": [
+        1.61,
+        2.22
+      ],
+      "method": "statsmodels logistic regression"
+    },
+    "deterioration_ref": {
+      "outcome": "deterioration_ref",
+      "red_rate": 61.2,
+      "green_rate": 34.0,
+      "red_n": "1294/2113",
+      "green_n": "624/1836",
+      "crude_rr": 1.8,
+      "crude_rr_ci": [
+        1.68,
+        1.94
+      ],
+      "adjusted_or": 3.16,
+      "adjusted_or_ci": [
+        2.77,
+        3.61
+      ],
+      "method": "statsmodels logistic regression"
+    },
+    "vaso_escalation": {
+      "outcome": "vaso_escalation",
+      "red_rate": 52.0,
+      "green_rate": 24.1,
+      "red_n": "1099/2113",
+      "green_n": "443/1836",
+      "crude_rr": 2.16,
+      "crude_rr_ci": [
+        1.97,
+        2.36
+      ],
+      "adjusted_or": 3.47,
+      "adjusted_or_ci": [
+        3.02,
+        3.98
+      ],
+      "method": "statsmodels logistic regression"
+    },
+    "covariates": "baseline SOFA-2 score (continuous) + age group (18-39, 40-49, 50-59, 60-69, 70-79, 80+ years)"
+  },
+  "rule_decomposition": {
+    "patterns": [
+      {
+        "rule": "Delta SOFA-2 >= 2 only",
+        "n": 659,
+        "pct": 16.7,
+        "mort28_pct": 27.6,
+        "deterioration_pct": 70.7
+      },
+      {
+        "rule": "48 h lactate > 2.0 with clearance < 10% only",
+        "n": 22,
+        "pct": 0.6,
+        "mort28_pct": 22.7,
+        "deterioration_pct": 50.0
+      },
+      {
+        "rule": "HR SD < 10 bpm with Delta SOFA-2 > 0 only",
+        "n": 340,
+        "pct": 8.6,
+        "mort28_pct": 15.0,
+        "deterioration_pct": 44.1
+      },
+      {
+        "rule": "Multiple rules",
+        "n": 1104,
+        "pct": 28.0,
+        "mort28_pct": 28.7,
+        "deterioration_pct": 61.0
+      },
+      {
+        "rule": "No rule (green alert)",
+        "n": 1824,
+        "pct": 46.2,
+        "mort28_pct": 16.2,
+        "deterioration_pct": 33.9
+      }
+    ],
+    "reconstruction_match": 99.7,
+    "note": "Reapplication of the frozen audit rules to the exported patient-level matrix reproduced 2125 red alerts vs 2113 issued by the engine (match 99.7%). 48 h lactate and clearance are sparsely measured, so rule 2 fires rarely."
+  },
+  "density_gradient": {
+    "tiers": [
+      {
+        "tier": "0-1",
+        "n": 1473,
+        "miss6_n": 1393,
+        "miss6_anchor_n": 47,
+        "miss6_anchor_pct": 3.4,
+        "miss12_n": 1424,
+        "miss12_anchor_n": 47,
+        "miss12_anchor_pct": 3.3
+      },
+      {
+        "tier": "2",
+        "n": 449,
+        "miss6_n": 170,
+        "miss6_anchor_n": 77,
+        "miss6_anchor_pct": 45.3,
+        "miss12_n": 311,
+        "miss12_anchor_n": 71,
+        "miss12_anchor_pct": 22.8
+      },
+      {
+        "tier": "3",
+        "n": 477,
+        "miss6_n": 61,
+        "miss6_anchor_n": 61,
+        "miss6_anchor_pct": 100.0,
+        "miss12_n": 90,
+        "miss12_anchor_n": 90,
+        "miss12_anchor_pct": 100.0
+      },
+      {
+        "tier": "4",
+        "n": 684,
+        "miss6_n": 21,
+        "miss6_anchor_n": 21,
+        "miss6_anchor_pct": 100.0,
+        "miss12_n": 28,
+        "miss12_anchor_n": 28,
+        "miss12_anchor_pct": 100.0
+      },
+      {
+        "tier": "5",
+        "n": 866,
+        "miss6_n": 0,
+        "miss6_anchor_n": 0,
+        "miss6_anchor_pct": null,
+        "miss12_n": 0,
+        "miss12_anchor_n": 0,
+        "miss12_anchor_pct": null
+      }
+    ],
+    "total_miss6": 1645,
+    "total_miss12": 1853,
+    "total_miss_either": 2084,
+    "note": "Later anchor = measured 24 h or 48 h lactate. Coverage = share of missing middle-window values that can enter the interpolation arm (R2 0.68-0.72) rather than the anchor-free fallback (R2 0.43)."
+  }
+}
