@@ -53,3 +53,32 @@ AmsterdamUMCdb is available to credentialed researchers via
 https://amsterdammedicaldatascience.nl/amsterdamumcdb/ after completion of
 the required data-use procedures. No AmsterdamUMCdb patient-level data are
 distributed in this repository.
+
+## Engine v2 (interpolation-first hybrid) — `engine_v2/`
+
+Post-hoc architectural revision motivated by the portability findings
+(labelled as such in the manuscript; not part of the frozen validation):
+
+- **Arm A (bracketing anchors available):** piecewise-linear interpolation
+  between measured lactate anchors. Repeated-CV on all 866 complete cases:
+  MSE 1.55, R2 0.72 — the honest information ceiling of the task.
+- **Arm B (no later anchor):** anchor-free XGBoost fallback
+  (lac0, HR SD, RR SD, age, male, vasopressor escalation; lr 0.01,
+  depth 3, subsample 0.6) trained on MIMIC-IV complete trajectories
+  (n=1,061), evaluated on AmsterdamUMCdb with 24 h/48 h anchors masked:
+  MSE 3.20, R2 0.43 (v1 formula: 3.12 / 0.44).
+- **Ceiling diagnostic:** in-site XGBoost R2 0.64; in-sample oracle bound
+  0.84; R2 0.9 would require MSE <= 0.44 on this test set and is
+  unattainable. Physiological residual correction adds no material gain
+  (0.728 vs 0.722).
+- **Coverage:** of 2,084 patients missing 6 h or 12 h lactate, only 325
+  (15.6%) have a later anchor; 1,759 (84.4%) are information-limited.
+  Conclusion: measurement density, not model architecture, is the binding
+  constraint in sparse-sampling ICUs.
+
+Files: `ceiling_diagnostic.py`, `ceiling_search.py`, `engine_v2.py`
+(cross-site MIMIC-trained variant), `engine_v2_final.py` (final
+architecture + fallback training/saving), trained fallback models
+(`engine_v2_lac{6,12}_anchorfree.json`, ready for deployment), and
+machine-readable results. MIMIC-IV patient-level training data are NOT
+redistributed (PhysioNet DUA).

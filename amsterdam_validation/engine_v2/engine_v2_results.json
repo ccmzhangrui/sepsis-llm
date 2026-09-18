@@ -1,0 +1,60 @@
+{
+  "engine": "v2 interpolation-first hybrid",
+  "fallback_features": [
+    "lac0",
+    "hr_sd",
+    "rr_sd",
+    "age",
+    "male",
+    "vaso_esc"
+  ],
+  "mimic_training_rows": 1061,
+  "armA_bracketed_benchmark": {
+    "n_patients": 866,
+    "n_values": 1732,
+    "v2_armA_interpolation": {
+      "MSE": 1.5542058596331314,
+      "MAE": 0.7326320699126733,
+      "R2": 0.7224640078941713
+    },
+    "v1_frozen_formula": {
+      "MSE": 3.1177890829282964,
+      "MAE": 1.1584780991733097,
+      "R2": 0.4432534912000142
+    },
+    "s12_260_subset": {
+      "v2_armA_interpolation": {
+        "MSE": 1.3824299008582854,
+        "MAE": 0.7176562483882211,
+        "R2": 0.6848256779124869
+      },
+      "v1_frozen_formula": {
+        "MSE": 2.279021400735146,
+        "MAE": 1.054416650594451,
+        "R2": 0.4804155895690029
+      }
+    }
+  },
+  "armB_anchor_free_benchmark": {
+    "design": "predict lac6/lac12 without lac24/lac48 anchors (frozen MIMIC-trained fallback vs v1 formula)",
+    "v2_armB_xgb_fallback": {
+      "MSE": 3.2034334162313463,
+      "MAE": 1.459367379294017,
+      "R2": 0.4279599026035107
+    },
+    "v1_frozen_formula": {
+      "MSE": 3.1177890829282964,
+      "MAE": 1.1584780991733097,
+      "R2": 0.4432534912000142
+    }
+  },
+  "full_cohort_coverage": {
+    "cohort_n": 3949,
+    "indeterminate_n": 1414,
+    "indeterminate_with_later_anchor_n": 117,
+    "indeterminate_with_later_anchor_pct": 0.08274398868458274,
+    "indeterminate_needing_fallback_n": 1297,
+    "indeterminate_needing_fallback_pct": 0.9172560113154172,
+    "lac0_available_in_indeterminate_pct": 0.36633663366336633
+  }
+}
