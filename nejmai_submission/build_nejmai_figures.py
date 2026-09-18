@@ -65,7 +65,7 @@ def panel_letter(ax, s, x=-0.08, y=1.05):
 
 # ================= Figure 1: pipeline (4 cohorts) =================
 def fig1():
-    fig = plt.figure(figsize=(6.9, 4.9))
+    fig = plt.figure(figsize=(6.9, 5.1))
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_xlim(0, 100); ax.set_ylim(0, 100); ax.axis("off")
 
@@ -73,6 +73,11 @@ def fig1():
         ax.add_patch(FancyBboxPatch(
             (x, y), w, h, boxstyle="round,pad=0,rounding_size=0.6",
             fc=fc, ec=ec, lw=lw, zorder=2))
+
+    def arrow(p0, p1, lw=1.0, ms=9):
+        ax.add_patch(FancyArrowPatch(p0, p1, arrowstyle="-|>",
+                                     mutation_scale=ms, color="#555555",
+                                     lw=lw, zorder=1))
 
     # --- top: four cohorts ---
     cohorts = [
@@ -96,19 +101,21 @@ def fig1():
 
     # freeze divider between eICU (col 2) and Ruijin (col 3)
     xdiv = X0 + 2 * W + GAP + GAP / 2  # 48.65
-    ax.plot([xdiv, xdiv], [79.0, 96.0], color="#999999", lw=0.9,
+    ax.plot([xdiv, xdiv], [97.6, 79.0], color="#999999", lw=0.9,
             ls=(0, (4, 3)), zorder=1)
-    ax.text(xdiv, 97.2, "model freeze", fontsize=7.0, ha="center",
+    ax.text(xdiv, 98.6, "model freeze", fontsize=7.0, ha="center",
             color="#666666", style="italic")
 
-    # --- data bus: EHR ingestion ---
+    # --- EHR ingestion bus (clean bus: 4 stubs + junction dots) ---
     ybus = 76.0
     ax.plot([centers[0], centers[-1]], [ybus, ybus], color="#888888",
             lw=0.9, zorder=1)
     for c in centers:
         ax.plot([c, c], [Y0, ybus], color="#888888", lw=0.9, zorder=1)
-    ax.text(50, 77.4, "EHR ingestion", fontsize=7.0, ha="center",
-            color="#666666", style="italic")
+        ax.plot([c], [ybus], marker="o", ms=2.4, color="#888888",
+                zorder=1)
+    ax.text(centers[0] - 0.6, 77.5, "EHR ingestion", fontsize=7.0,
+            ha="left", color="#666666", style="italic")
 
     # --- middle: three agents ---
     agents = [
@@ -132,45 +139,50 @@ def fig1():
                 fontsize=8.0, color=INK, zorder=3)
         ax.text(x + AW/2, AY + 7.0, desc, ha="center", va="center",
                 fontsize=7.0, color="#444444", linespacing=1.55, zorder=3)
-        if i < 2:
-            ax.add_patch(FancyArrowPatch(
-                (x + AW + 0.3, AY + AH/2),
-                (x + AW + AGAP - 0.3, AY + AH/2),
-                arrowstyle="-|>", mutation_scale=9, color="#555555",
-                lw=1.0))
+    a_centers = [x + AW/2 for x in agent_x]
 
-    # bus -> Agent 1
-    ax.add_patch(FancyArrowPatch(
-        (agent_x[0] + AW/2, ybus), (agent_x[0] + AW/2, AY + AH + 0.4),
-        arrowstyle="-|>", mutation_scale=9, color="#555555", lw=1.0))
+    # bus -> Agent 1 (single vertical arrow at Agent 1 center)
+    arrow((a_centers[0], ybus), (a_centers[0], AY + AH + 0.4))
 
-    # --- bottom: clinician-facing output + audit gate ---
-    box(6.0, 12, 56, 23, LGRAY, "#444444")
-    ax.text(34, 31.5, "Clinician-facing CDSS report", ha="center",
-            va="center", fontsize=8.8, fontweight="bold", color=INK,
-            zorder=3)
-    ax.text(34, 22.0,
-            "Risk-stratified alert with auditable data lineage;\n"
-            "unsupported statements suppressed by the audit gate",
-            ha="center", va="center", fontsize=7.4, color="#444444",
-            linespacing=1.6, zorder=3)
-    ax.add_patch(FancyArrowPatch((agent_x[0] + AW/2, AY - 0.4),
-                                 (34, 35.4), arrowstyle="-|>",
-                                 mutation_scale=9, color="#555555", lw=1.0))
+    # horizontal chain Agent 1 -> Agent 2 -> Agent 3
+    for i in range(2):
+        arrow((agent_x[i] + AW + 0.3, AY + AH/2),
+              (agent_x[i] + AW + AGAP - 0.3, AY + AH/2))
 
-    box(68.5, 12, 25.5, 23, "#FDF6F5", RED)
-    ax.text(81.25, 31.5, "Audit gate", ha="center", va="center",
-            fontsize=8.6, fontweight="bold", color=DRED, zorder=3)
-    ax.text(81.25, 21.5,
-            "Rule checks against the\nstructured matrix;\nmanual-review flag\non failure",
+    # --- fan-in collector: all agents -> audit gate ---
+    ycol = 40.0
+    for c in a_centers:
+        ax.plot([c, c], [AY - 0.3, ycol], color="#888888", lw=0.9,
+                zorder=1)
+    ax.plot([a_centers[0], a_centers[-1]], [ycol, ycol], color="#888888",
+            lw=0.9, zorder=1)
+    arrow((a_centers[0], ycol), (a_centers[0], 35.6))
+
+    # --- bottom: audit gate -> clinician-facing report (left to right) ---
+    gw = 27.5
+    box(6.0, 12, gw, 23, "#FDF6F5", RED)
+    ax.text(6.0 + gw/2, 31.5, "Audit gate", ha="center", va="center",
+            fontsize=8.8, fontweight="bold", color=DRED, zorder=3)
+    ax.text(6.0 + gw/2, 21.5,
+            "Rule checks against the\nstructured matrix;\nunsupported statements\n"
+            "suppressed with a\nmanual-review flag",
             ha="center", va="center", fontsize=7.2, color="#444444",
             linespacing=1.5, zorder=3)
-    ax.add_patch(FancyArrowPatch((agent_x[2] + AW/2, AY - 0.4),
-                                 (81.25, 35.4), arrowstyle="-|>",
-                                 mutation_scale=9, color="#555555", lw=1.0))
-    ax.add_patch(FancyArrowPatch((62.3, 23.5), (68.3, 23.5),
-                                 arrowstyle="-|>", mutation_scale=8,
-                                 color="#555555", lw=0.9))
+
+    rx0 = 6.0 + gw + AGAP          # 38.25
+    rw = 98.0 - rx0                 # to x = 98
+    box(rx0, 12, rw, 23, LGRAY, "#444444")
+    ax.text(rx0 + rw/2, 31.5, "Clinician-facing CDSS report",
+            ha="center", va="center", fontsize=8.8, fontweight="bold",
+            color=INK, zorder=3)
+    ax.text(rx0 + rw/2, 21.0,
+            "Risk-stratified alert with auditable data lineage:\n"
+            "every statement linked to structured data,\n"
+            "temporal deltas, or prespecified rules",
+            ha="center", va="center", fontsize=7.4, color="#444444",
+            linespacing=1.6, zorder=3)
+    # audit gate -> report (horizontal, mid-height)
+    arrow((6.0 + gw + 0.3, 23.5), (rx0 - 0.3, 23.5))
     save(fig, "Figure_1")
 
 
@@ -264,58 +276,88 @@ def fig2():
 
 # ================= Figure S1: cohort flow =================
 def figS1():
-    fig = plt.figure(figsize=(6.9, 4.8))
+    """Each label line is <= 26 chars (verified: column inner width
+    ~111 pt, ~28 chars at 7.0 pt Arial) so text never exceeds borders."""
+    fig = plt.figure(figsize=(6.9, 5.2))
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_xlim(0, 100); ax.set_ylim(0, 100); ax.axis("off")
 
-    def box(x, y, w, h, txt, fc="white", ec="#333333", fs=7.6, bold=False,
-            lw=0.9, tc=INK):
+    LINE_H, PAD_H, VGAP = 3.4, 4.2, 3.6   # per text line / padding / gap
+
+    def box(x, y, w, h, fc="white", ec="#333333", lw=0.9):
         ax.add_patch(FancyBboxPatch(
             (x, y), w, h, boxstyle="round,pad=0,rounding_size=0.6",
             fc=fc, ec=ec, lw=lw, zorder=2))
-        ax.text(x + w/2, y + h/2, txt, ha="center", va="center",
-                fontsize=fs, color=tc,
-                fontweight="bold" if bold else "normal", linespacing=1.45,
-                zorder=3)
+
+    def text_block(x, y, w, h, lines, fs=7.0, tc=INK, bold=False,
+                   n_line=None):
+        """Draw lines centered; n_line (if given) extra bold below."""
+        all_lines = list(lines)
+        if n_line:
+            all_lines = all_lines + [n_line]
+        total = len(all_lines) * LINE_H
+        ytop = y + h / 2 + total / 2
+        for k, ln in enumerate(all_lines):
+            is_n = n_line and k == len(all_lines) - 1
+            ax.text(x + w/2, ytop - (k + 0.5) * LINE_H, ln, ha="center",
+                    va="center", fontsize=8.0 if is_n else fs,
+                    fontweight="bold" if (bold or is_n) else "normal",
+                    color=tc, zorder=3)
 
     cols = [
         ("MIMIC-IV v2.2", NAVY, [
-            ("ICU encounters meeting\nSepsis-3 criteria", "n=17,292"),
-            ("Development: feature\nselection, tuning, training", "")]),
+            (["ICU encounters meeting", "Sepsis-3 criteria"], "n = 17,292"),
+            (["Development: feature", "selection, tuning,", "training"], None),
+        ]),
         ("eICU v2.0", BLUE, [
-            ("Sepsis-3 encounters\nacross multiple centres", "n=11,029"),
-            ("Pre-freeze external\nvalidation (portability)", "")]),
+            (["Sepsis-3 encounters", "across multiple centres"], "n = 11,029"),
+            (["Pre-freeze external", "validation (portability)"], None),
+        ]),
         ("Ruijin Hospital\n(2022\u20132025)", TEAL, [
-            ("Retrospective clinical\nvalidation cohort", "n=200"),
-            ("Frozen retrospective clinical\nvalidation and auditing", "")]),
+            (["Retrospective clinical", "validation cohort"], "n = 200"),
+            (["Frozen clinical validation", "and simulated", "real-time auditing"], None),
+        ]),
         ("AmsterdamUMCdb\n(2003\u20132016)", GRAY, [
-            ("ICU admissions screened", "n=23,106"),
-            ("Suspected infection\n(Seymour antibiotic\u2013culture pairing)",
-             "n=4,291"),
-            ("Sepsis-3 analytic cohort\n(342 excluded, SOFA-2 <2)",
-             "n=3,949"),
-            ("Fully frozen external\nvalidation (no adaptation)", "")]),
+            (["ICU admissions", "screened"], "n = 23,106"),
+            (["Suspected infection", "(Seymour antibiotic\u2013", "culture pairing)"], "n = 4,291"),
+            (["Sepsis-3 analytic cohort", "(342 excluded,", "SOFA-2 < 2)"], "n = 3,949"),
+            (["Fully frozen external", "validation (no", "adaptation)"], None),
+        ]),
     ]
     W, GAP, X0 = 22.4, 1.9, 1.0
+    last_bottom = {}
     for i, (name, col, steps) in enumerate(cols):
         x = X0 + i * (W + GAP)
-        box(x, 89, W, 10, name, fc=col, ec=col, fs=8.0, bold=True,
-            tc="white")
+        # header (2 lines max)
+        box(x, 89, W, 10, fc=col, ec=col)
+        ax.text(x + W/2, 94, name, ha="center", va="center", fontsize=8.0,
+                fontweight="bold", color="white", linespacing=1.4,
+                zorder=3)
         prev_y = 89
-        for j, (label, n) in enumerate(steps):
-            lines = 3 if n else 2
-            h = 4.2 * lines + 3.2
-            y = prev_y - (h + 4.6)
-            box(x, y, W, h, label + (f"\n{n}" if n else ""),
-                fc="white", ec=col, fs=7.2, bold=bool(n))
+        for j, (lines, n) in enumerate(steps):
+            nl = len(lines) + (1 if n else 0)
+            h = nl * LINE_H + PAD_H
+            y = prev_y - VGAP - h
+            box(x, y, W, h, fc="white", ec=col)
+            text_block(x, y, W, h, lines, n_line=n)
             ax.add_patch(FancyArrowPatch(
-                (x + W/2, prev_y), (x + W/2, y + h + 0.2),
+                (x + W/2, prev_y), (x + W/2, y + h + 0.15),
                 arrowstyle="-|>", mutation_scale=7, color="#777777",
                 lw=0.8))
             prev_y = y
-    box(21, 3, 58, 8,
-        "Total Sepsis-3 encounters across four cohorts: n=32,470",
-        fc=LGRAY, ec="#444444", fs=8.4, bold=True)
+        last_bottom[i] = prev_y
+
+    # summary strip connected to every column (dashed drops)
+    strip_y, strip_h = 3.5, 7.5
+    box(1.0, strip_y, 98.0, strip_h, fc=LGRAY, ec="#444444")
+    ax.text(50, strip_y + strip_h/2,
+            "Total Sepsis-3 encounters across four cohorts: n = 32,470",
+            ha="center", va="center", fontsize=8.4, fontweight="bold",
+            color=INK, zorder=3)
+    for i in range(4):
+        x = X0 + i * (W + GAP) + W/2
+        ax.plot([x, x], [last_bottom[i], strip_y + strip_h + 0.2],
+                color="#AAAAAA", lw=0.8, ls=(0, (3, 3)), zorder=1)
     save(fig, "Supplementary_Figure_S1")
 
 
@@ -414,9 +456,17 @@ def figS3():
     save(fig, "Supplementary_Figure_S3")
 
 
-fig1()
-fig2()
-figS1()
-figS2()
-figS3()
-print("ALL FIGURES DONE")
+if __name__ == "__main__":
+    import sys
+    which = sys.argv[1:] or ["fig1", "fig2", "figS1", "figS2", "figS3"]
+    if "fig1" in which:
+        fig1()
+    if "fig2" in which:
+        fig2()
+    if "figS1" in which:
+        figS1()
+    if "figS2" in which:
+        figS2()
+    if "figS3" in which:
+        figS3()
+    print("FIGURES DONE:", ", ".join(which))

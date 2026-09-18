@@ -22,8 +22,17 @@ SRC = "/Users/zhangrui/Desktop/脓毒症/脓毒症大模型文章/sepsis_decisio
 OUTDIR = "/Users/zhangrui/Desktop/脓毒症/脓毒症大模型文章/NEJMAI_submission"
 os.makedirs(OUTDIR, exist_ok=True)
 
-src = Document(SRC)
-SRC_TABLES = [copy.deepcopy(t._tbl) for t in src.tables]  # 15 tables
+src = Document(SRC)   # source of table DATA only (rebuilt, not copied)
+
+
+def table_rows(tbl):
+    """Extract non-empty rows of cell texts from a source table."""
+    out = []
+    for r in tbl.rows:
+        vals = [c.text.strip() for c in r.cells]
+        if any(v for v in vals):
+            out.append(vals)
+    return out
 
 TITLE = ("A Clinically Auditable Agentic Large Language Model System for "
          "Sepsis Decision Support under Data Missingness: A Multicenter "
@@ -100,7 +109,7 @@ ABSTRACT = {
  "A constrained, trajectory-informed agentic-LLM workflow with "
  "deterministic auditing is technically feasible and retrospectively "
  "reproducible across four cohorts. Serial-measurement density, rather "
- "than model architecture, is the binding constraint on trajectory-based "
+ "than model architecture, limits trajectory-based "
  "decision support in sparse-sampling settings. Prospective "
  "clinical-effectiveness studies remain necessary.",
 }
@@ -121,7 +130,7 @@ INTRODUCTION = [
  "require rigid, structured inputs and are highly sensitive to data "
  "missingness \u2014 serial lactate or vital-sign trends are frequently "
  "absent in real-world electronic health records (EHRs) [7-10]. "
- "Conversely, clinical applications of generative LLMs are bottlenecked "
+ "Conversely, clinical applications of generative LLMs are limited "
  "by hallucination risk, weak native handling of temporal trajectories, "
  "and the absence of verifiable audit trails [11,12].",
 
@@ -245,7 +254,7 @@ RESULTS = [
   "double-blind chart review (n=1,200 sampled cases), Agent 1 achieved "
   "extraction precision for serial SOFA-2 scores of 99.2% (95% CI "
   "98.4\u201399.7) in MIMIC-IV, 98.8% (97.9\u201399.4) in eICU, and "
-  "99.4% (98.6\u201399.9) in Ruijin, with consistently high fidelity "
+  "99.4% (98.6\u201399.9) in Ruijin, with similar precision for "
   "for serial lactate and vasopressor dosing (Table 1; Supplementary "
   "Table S1).",
  ]),
@@ -334,12 +343,11 @@ DISCUSSION = [
   "exist (R2 0.68\u20130.72) but remains information-limited where they "
   "do not (R2 0.43); 84.4% of patients with missing 6 h or 12 h lactate "
   "had no later anchor measurement. These results indicate that "
-  "serial-measurement density, rather than model architecture, is the "
-  "binding constraint on trajectory-based decision support in "
-  "sparse-sampling settings \u2014 a clinically actionable finding "
-  "favouring protocolised serial lactate measurement over model "
-  "refinement, and supporting imputation portability as a first-class "
-  "evaluation dimension in CDSS transportability studies.",
+  "serial-measurement density, rather than model architecture, limits "
+  "trajectory-based decision support in sparse-sampling settings. "
+  "This finding favours protocolised serial lactate measurement over "
+  "model refinement and argues that imputation portability be "
+  "evaluated directly in CDSS transportability studies.",
  ]),
  ("Limitations", [
   "First, the Ruijin clinical validation cohort was retrospective, "
@@ -607,6 +615,114 @@ def wordcount(text):
     return len(re.findall(r"[A-Za-z0-9\u00c0-\u00ff]+(?:['\u2019\-]"
                           r"[A-Za-z0-9\u00c0-\u00ff]+)*", text))
 
+
+# ---------------------------------------------------- journal tables
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.enum.text import WD_ALIGN_PARAGRAPH as _AL
+from docx.shared import Twips
+
+USABLE = 9360  # 6.5 in in twips (1-inch margins on US Letter)
+
+
+def _cell_borders(cell, bottom=False):
+    tcPr = cell._tc.get_or_add_tcPr()
+    old = tcPr.find(qn("w:tcBorders"))
+    if old is not None:
+        tcPr.remove(old)
+    b = OxmlElement("w:tcBorders")
+    if bottom:
+        el = OxmlElement("w:bottom")
+        el.set(qn("w:val"), "single"); el.set(qn("w:sz"), "6")
+        el.set(qn("w:space"), "0"); el.set(qn("w:color"), "000000")
+        b.append(el)
+    tcPr.append(b)
+
+
+def _set_tblpr_child(tblPr, tag):
+    """Remove any existing child of this tag, return a fresh element
+    appended at the end (avoids duplicate w:tblW etc.)."""
+    for old in tblPr.findall(qn(f"w:{tag}")):
+        tblPr.remove(old)
+    el = OxmlElement(f"w:{tag}")
+    tblPr.append(el)
+    return el
+
+
+def styled_table(doc, rows, size=9):
+    """Rebuild a table in clean journal (booktabs) style:
+    top/bottom rules only, header underline, no vertical lines,
+    TNR 9 pt, proportional fixed column widths, header repeats."""
+    ncols = max(len(r) for r in rows)
+    rows = [r + [""] * (ncols - len(r)) for r in rows]
+    t = doc.add_table(rows=len(rows), cols=ncols)
+    t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    t.autofit = False
+    tblPr = t._tbl.tblPr
+
+    layout = _set_tblpr_child(tblPr, "tblLayout")
+    layout.set(qn("w:type"), "fixed")
+    tw = _set_tblpr_child(tblPr, "tblW")
+    tw.set(qn("w:w"), str(USABLE)); tw.set(qn("w:type"), "dxa")
+    mar = _set_tblpr_child(tblPr, "tblCellMar")
+    for side, v in (("top", 30), ("left", 80), ("bottom", 30),
+                    ("right", 80)):
+        el = OxmlElement(f"w:{side}")
+        el.set(qn("w:w"), str(v)); el.set(qn("w:type"), "dxa")
+        mar.append(el)
+    borders = _set_tblpr_child(tblPr, "tblBorders")
+    for side, val, sz in (("top", "single", "12"), ("bottom", "single", "12")):
+        el = OxmlElement(f"w:{side}")
+        el.set(qn("w:val"), val); el.set(qn("w:sz"), sz)
+        el.set(qn("w:space"), "0"); el.set(qn("w:color"), "000000")
+        borders.append(el)
+    for side in ("left", "right", "insideH", "insideV"):
+        el = OxmlElement(f"w:{side}")
+        el.set(qn("w:val"), "none"); el.set(qn("w:sz"), "0")
+        el.set(qn("w:space"), "0"); el.set(qn("w:color"), "auto")
+        borders.append(el)
+
+    # proportional column widths from longest line per column
+    maxlen = []
+    for j in range(ncols):
+        m = max((max((len(ln) for ln in r[j].split("\n")), default=1)
+                 for r in rows), default=1)
+        maxlen.append(max(5, min(m, 60)))
+    tot = sum(maxlen)
+    widths = [max(680, int(USABLE * m / tot)) for m in maxlen]
+    widths[-1] += USABLE - sum(widths)  # exact fit
+    grid = t._tbl.find(qn("w:tblGrid"))
+    for gc in list(grid):
+        grid.remove(gc)
+    for w in widths:
+        gc = OxmlElement("w:gridCol"); gc.set(qn("w:w"), str(w))
+        grid.append(gc)
+
+    # header repeat
+    trPr = t.rows[0]._tr.get_or_add_trPr()
+    th = OxmlElement("w:tblHeader"); th.set(qn("w:val"), "true")
+    trPr.append(th)
+
+    for i, r in enumerate(rows):
+        for j, val in enumerate(r):
+            cell = t.rows[i].cells[j]
+            cell.width = Twips(widths[j])
+            left = maxlen[j] > 22
+            first = True
+            for ln in val.split("\n"):
+                p = cell.paragraphs[0] if first else cell.add_paragraph()
+                first = False
+                add_run(p, ln, bold=(i == 0), size=size)
+                p.alignment = _AL.LEFT if (left or i == 0 and j == 0) \
+                    else _AL.CENTER
+                if i == 0 and not left:
+                    p.alignment = _AL.CENTER
+                pf = p.paragraph_format
+                pf.space_before = Pt(0); pf.space_after = Pt(0)
+                pf.line_spacing = 1.0
+            if i == 0:
+                _cell_borders(cell, bottom=True)
+    return t
+
 # ================================================== MAIN MANUSCRIPT
 main = new_doc()
 C = WD_ALIGN_PARAGRAPH.CENTER
@@ -685,12 +801,13 @@ heading(main, "Tables", size=13)
 para(main, "Table 1. Performance of Agent 1 on dynamic feature "
      "extraction across cohorts.", bold=True, space_after=6,
      line_spacing=1.5)
-main.element.body.append(SRC_TABLES[0])
+main.element.body  # (tables are rebuilt below, not copied)
+styled_table(main, table_rows(src.tables[0]))
 para(main, "", space_after=8)
 para(main, "Table 2. Baseline characteristics and early serial clinical "
      "measures in the Ruijin clinical validation cohort (2022\u20132025).",
      bold=True, space_after=6, line_spacing=1.5)
-main.element.body.append(SRC_TABLES[1])
+styled_table(main, table_rows(src.tables[1]))
 
 page_break(main)
 heading(main, "Figure legends", size=13)
@@ -815,7 +932,7 @@ CAPTIONS = [
 heading(sup, "Supplementary Tables")
 for cap, idx in CAPTIONS:
     para(sup, cap + ".", bold=True, space_after=3)
-    sup.element.body.append(SRC_TABLES[idx])
+    styled_table(sup, table_rows(src.tables[idx]))
     if idx == 13:
         para(sup, "For reference, the frozen XGBoost trajectory regressor "
              "achieved MSE 0.12 mmol/L and R2 0.92 in the development "
@@ -881,26 +998,11 @@ S14 = [
   "Findings may not extend to community or resource-limited hospitals, "
   "pediatric populations, or settings without high-frequency "
   "physiological monitoring.",
-  "The fully frozen AmsterdamUMCdb validation was designed to stress-"
-  "test portability across era and sampling density; remaining gaps "
+  "The fully frozen AmsterdamUMCdb validation was designed to test "
+  "portability across era and sampling density; remaining gaps "
   "are acknowledged in the Limitations."],
 ]
-tbl = sup.add_table(rows=len(S14), cols=3)
-tbl.style = "Table Grid"
-widths = [2200, 3600, 3838]
-grid = tbl._tbl.find(qn("w:tblGrid"))
-if grid is None:
-    grid = OxmlElement("w:tblGrid")
-    tbl._tbl.insert(1, grid)
-for gc in list(grid):
-    grid.remove(gc)
-for w in widths:
-    gc = OxmlElement("w:gridCol"); gc.set(qn("w:w"), str(w)); grid.append(gc)
-for i, row in enumerate(S14):
-    for j, val in enumerate(row):
-        cell = tbl.rows[i].cells[j]
-        cell.paragraphs[0].text = ""
-        add_run(cell.paragraphs[0], val, bold=(i == 0), size=10)
+tbl = styled_table(sup, S14)
 
 heading(sup, "Supplementary Figure legends")
 para(sup, "Supplementary Figure S1. STROBE/RECORD-style cohort "
@@ -963,10 +1065,9 @@ cl_paras = [
  "later measurements (R2 0.43). Third, a coverage analysis showed that "
  "84.4% of patients with missing 6 h or 12 h lactate had no later "
  "anchor measurement, identifying serial-measurement density \u2014 "
- "not model architecture \u2014 as the binding constraint on "
+ "not model architecture \u2014 as the factor that most limits "
  "trajectory-based decision support in sparse-sampling ICUs, a "
- "clinically actionable conclusion with direct implications for "
- "monitoring policy.",
+ "conclusion with direct implications for monitoring policy.",
 
  "Reporting was aligned with STROBE/RECORD and organized by "
  "TRIPOD+AI-oriented transparency domains; a disease-background and "
