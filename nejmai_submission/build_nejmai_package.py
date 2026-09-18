@@ -28,16 +28,33 @@ SRC_TABLES = [copy.deepcopy(t._tbl) for t in src.tables]  # 15 tables
 TITLE = ("A Clinically Auditable Agentic Large Language Model System for "
          "Sepsis Decision Support under Data Missingness: A Multicenter "
          "Development and Retrospective Validation Study")
-AUTHORS = ("Rui Zhang MD 1†, Shengjun Liu MD 2†, Jingyi Wu MD 1†, "
-           "Wencui Wang 1, Jiahui Wang MD 1, Lei Pei MD 1, Ruoming Tan 1, "
-           "Lei Li 1, Yun Long MD 2*, Longxiang Su MD 2*, "
-           "Hongping Qu MD 1*")
-AFFIL1 = ("1 Department of Critical Care Medicine, Ruijin Hospital, "
-          "Shanghai Jiao Tong University School of Medicine, Shanghai, China")
-AFFIL2 = ("2 Department of Critical Care Medicine, State Key Laboratory of "
+# (name, superscript) — NEJM AI author-order compliance:
+#   co-first authors first, then contributing authors, then co-senior
+#   authors; ONE corresponding author (NEJM AI permits only one).
+AUTHORS = [("Rui Zhang MD", "1†"),
+           ("Xu Wang PhD", "2†"),
+           ("Shengjun Liu MD", "3†"),
+           ("Jingyi Wu PhD", "1"),
+           ("Jie Huang PhD", "1"),
+           ("Wencui Wang", "1"),
+           ("Jiahui Wang MD", "1"),
+           ("Lei Pei MD", "1"),
+           ("Ruoming Tan", "1"),
+           ("Lei Li", "1"),
+           ("Yun Long MD", "3‡"),
+           ("Longxiang Su MD", "3‡"),
+           ("Hongping Qu MD", "1‡*")]
+AFFILIATIONS = [
+    ("1", "Department of Critical Care Medicine, Ruijin Hospital, "
+          "Shanghai Jiao Tong University School of Medicine, Shanghai, "
+          "China"),
+    ("2", "Zhongshan Hospital, Fudan University, Shanghai, China"),
+    ("3", "Department of Critical Care Medicine, State Key Laboratory of "
           "Complex Severe and Rare Diseases, Peking Union Medical College "
-          "Hospital, Beijing, China")
-EQUAL = "† These authors contributed equally as co-first authors."
+          "Hospital, Beijing, China"),
+]
+EQUAL = "† Drs. Zhang, Wang, and Liu contributed equally to this manuscript."
+SENIOR = "‡ Drs. Long, Su, and Qu contributed equally as co-senior authors."
 CORR = ("* Corresponding author: Hongping Qu (qhp10516@rjh.com.cn), "
         "Department of Critical Care Medicine, Ruijin Hospital, Shanghai "
         "Jiao Tong University School of Medicine, 197 Ruijin Er Road, "
@@ -359,12 +376,12 @@ DISCUSSION = [
 
 DECLARATIONS = [
  ("Contributors",
-  "RZ, SL, and JW (Jingyi Wu) conceived and designed the study, "
+  "RZ, XW, SL, and JW (Jingyi Wu) conceived and designed the study, "
   "developed the methodology, drafted the manuscript, and critically "
   "revised it. HQ, LS, and YL supervised the study and interpreted the "
-  "clinical findings. RZ, WW, and JW (Jingyi Wu) performed the "
-  "algorithm design and validation. RZ, JW (Jiahui Wang), and LP "
-  "contributed to case screening, data collection, and data "
+  "clinical findings. RZ, XW, JH, WW, and JW (Jingyi Wu) performed the "
+  "algorithm design and validation. RZ, JW (Jiahui Wang), LP, RT, and "
+  "LL contributed to case screening, data collection, and data "
   "verification. All authors had full access to all data, critically "
   "revised the manuscript, approved the final version, and had final "
   "responsibility for the decision to submit for publication."),
@@ -383,7 +400,12 @@ DECLARATIONS = [
  ("Acknowledgments",
   "We thank all patients whose historical records were analyzed, and "
   "the medical and nursing staff at Ruijin Hospital and the maintainers "
-  "of the MIMIC-IV, eICU, and AmsterdamUMCdb databases."),
+  "of the MIMIC-IV, eICU, and AmsterdamUMCdb databases. During the "
+  "preparation of this manuscript, Kimi-K3 (Moonshot AI) was used to "
+  "polish the text and create some elements of figures. All "
+  "AI-assisted output was reviewed and edited by the authors, who take "
+  "full responsibility for the accuracy and integrity of the work. No "
+  "AI-assisted technology is listed as an author."),
 ]
 
 REFERENCES = [
@@ -487,19 +509,27 @@ FIG2_LEGEND = ("Figure 2. Imputation and decision performance in the "
  "fallback arm) and alert status within the indeterminate group.")
 
 # ---------------------------------------------------------------- helpers
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
+
 def new_doc():
     doc = Document()
     st = doc.styles["Normal"]
     st.font.name = "Times New Roman"
     st.font.size = Pt(12)
+    # 1-inch margins, Letter size (NEJM AI submission standard)
+    for sec in doc.sections:
+        sec.top_margin = sec.bottom_margin = Pt(72)
+        sec.left_margin = sec.right_margin = Pt(72)
     return doc
 
-def add_run(p, text, bold=False, size=12, italic=False):
+def add_run(p, text, bold=False, size=12, italic=False, superscript=False):
     r = p.add_run(text)
     r.font.name = "Times New Roman"
     r.font.size = Pt(size)
     r.bold = bold
     r.italic = italic
+    if superscript:
+        r.font.superscript = True
     rPr = r._element.get_or_add_rPr()
     rf = rPr.find(qn("w:rFonts"))
     if rf is None:
@@ -508,16 +538,69 @@ def add_run(p, text, bold=False, size=12, italic=False):
     return r
 
 def para(doc, text, bold=False, size=12, italic=False, align=None,
-         space_after=6):
+         space_after=6, line_spacing=None, first_indent=None,
+         space_before=0):
     p = doc.add_paragraph()
     add_run(p, text, bold, size, italic)
-    p.paragraph_format.space_after = Pt(space_after)
+    pf = p.paragraph_format
+    pf.space_after = Pt(space_after)
+    pf.space_before = Pt(space_before)
+    if line_spacing:
+        pf.line_spacing = line_spacing
+    if first_indent is not None:
+        pf.first_line_indent = Pt(first_indent)
     if align:
         p.alignment = align
     return p
 
-def heading(doc, text, size=12):
-    return para(doc, text, bold=True, size=size, space_after=4)
+def body_para(doc, text):
+    """Journal-standard body paragraph: TNR 12, double-spaced, justified,
+    first-line indent 0.25 in."""
+    return para(doc, text, align=WD_ALIGN_PARAGRAPH.JUSTIFY,
+                line_spacing=2.0, first_indent=18, space_after=0)
+
+def heading(doc, text, size=12, space_before=12, italic=False):
+    """Level-1 heading: bold, left-aligned."""
+    return para(doc, text, bold=True, size=size, italic=italic,
+                space_after=6, space_before=space_before)
+
+def subheading(doc, text):
+    """Level-2 heading: bold italic."""
+    return para(doc, text, bold=True, italic=True, size=12,
+                space_after=4, space_before=8)
+
+def page_break(doc):
+    from docx.enum.text import WD_BREAK
+    p = doc.add_paragraph()
+    r = p.add_run()
+    r.add_break(WD_BREAK.PAGE)
+    return p
+
+def setup_lines_and_footer(doc):
+    """Continuous line numbering + centered page number in footer
+    (journal submission requirements)."""
+    sect = doc.sections[0]
+    sectPr = sect._sectPr
+    ln = OxmlElement("w:lnNumType")
+    ln.set(qn("w:countBy"), "1")
+    ln.set(qn("w:start"), "1")
+    ln.set(qn("w:distance"), "240")
+    ln.set(qn("w:restart"), "continuous")
+    sectPr.append(ln)
+    fp = sect.footer.paragraphs[0]
+    fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    fld = OxmlElement("w:fldSimple")
+    fld.set(qn("w:instr"), "PAGE")
+    r = OxmlElement("w:r")
+    rPr = OxmlElement("w:rPr")
+    rf = OxmlElement("w:rFonts"); rf.set(qn("w:ascii"), "Times New Roman")
+    rf.set(qn("w:hAnsi"), "Times New Roman")
+    sz = OxmlElement("w:sz"); sz.set(qn("w:val"), "20")
+    rPr.append(rf); rPr.append(sz)
+    t = OxmlElement("w:t"); t.text = "1"
+    r.append(rPr); r.append(t)
+    fld.append(r)
+    fp._p.append(fld)
 
 def wordcount(text):
     import re
@@ -526,42 +609,59 @@ def wordcount(text):
 
 # ================================================== MAIN MANUSCRIPT
 main = new_doc()
-para(main, TITLE, bold=True, size=14, space_after=10)
-para(main, AUTHORS, space_after=4)
-para(main, AFFIL1, size=11, space_after=2)
-para(main, AFFIL2, size=11, space_after=2)
-para(main, EQUAL, size=11, space_after=2)
-para(main, CORR, size=11, space_after=10)
+C = WD_ALIGN_PARAGRAPH.CENTER
 
-para(main, "Short description", bold=True, space_after=2)
-para(main, DESCRIPTION, space_after=10)
+# ---- title page ----
+para(main, TITLE, bold=True, size=16, align=C, space_after=16,
+     space_before=24, line_spacing=1.5)
+p = para(main, "", align=C, space_after=10, line_spacing=1.5)
+for i, (name, sup) in enumerate(AUTHORS):
+    if i:
+        add_run(p, ", ", size=12)
+    add_run(p, name, size=12)
+    add_run(p, sup, size=12, superscript=True)
+for num, txt in AFFILIATIONS:
+    p = para(main, "", align=C, size=10, space_after=4, line_spacing=1.25)
+    add_run(p, num, size=10, superscript=True)
+    add_run(p, " " + txt, size=10, italic=True)
+para(main, EQUAL, size=10, align=C, space_after=2, space_before=8)
+para(main, SENIOR, size=10, align=C, space_after=2)
+para(main, CORR, size=10, align=C, space_after=0, line_spacing=1.25)
+page_break(main)
 
-heading(main, "Abstract")
+# ---- short description & abstract ----
+para(main, "Short description", bold=True, space_after=4)
+body_para(main, DESCRIPTION)
+para(main, "", space_after=6)
+heading(main, "Abstract", size=13)
 for sec in ("Background", "Methods", "Results", "Conclusions"):
     p = main.add_paragraph()
     add_run(p, sec + ". ", bold=True)
     add_run(p, ABSTRACT[sec])
-    p.paragraph_format.space_after = Pt(4)
+    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p.paragraph_format.line_spacing = 2.0
+    p.paragraph_format.space_after = Pt(0)
 abs_words = sum(wordcount(v) for v in ABSTRACT.values())
 
-heading(main, "Introduction")
+# ---- body ----
+heading(main, "Introduction", size=13)
 for t in INTRODUCTION:
-    para(main, t)
-heading(main, "Methods")
+    body_para(main, t)
+heading(main, "Methods", size=13)
 for h, ps in METHODS:
-    heading(main, h)
+    subheading(main, h)
     for t in ps:
-        para(main, t)
-heading(main, "Results")
+        body_para(main, t)
+heading(main, "Results", size=13)
 for h, ps in RESULTS:
-    heading(main, h)
+    subheading(main, h)
     for t in ps:
-        para(main, t)
-heading(main, "Discussion")
+        body_para(main, t)
+heading(main, "Discussion", size=13)
 for h, ps in DISCUSSION:
-    heading(main, h)
+    subheading(main, h)
     for t in ps:
-        para(main, t)
+        body_para(main, t)
 
 main_words = (sum(wordcount(t) for t in INTRODUCTION)
               + sum(wordcount(t) for _, ps in METHODS for t in ps)
@@ -569,26 +669,37 @@ main_words = (sum(wordcount(t) for t in INTRODUCTION)
               + sum(wordcount(t) for _, ps in DISCUSSION for t in ps))
 
 for h, t in DECLARATIONS:
-    heading(main, h)
-    para(main, t)
+    heading(main, h, size=13)
+    body_para(main, t)
 
-heading(main, "References")
+page_break(main)
+heading(main, "References", size=13)
 for i, ref in enumerate(REFERENCES, 1):
-    para(main, f"{i}. {ref}", size=11, space_after=2)
+    p = para(main, f"{i}. {ref}", size=11, space_after=2,
+             line_spacing=1.5, align=WD_ALIGN_PARAGRAPH.JUSTIFY)
+    p.paragraph_format.left_indent = Pt(18)
+    p.paragraph_format.first_line_indent = Pt(-18)
 
-heading(main, "Tables")
+page_break(main)
+heading(main, "Tables", size=13)
 para(main, "Table 1. Performance of Agent 1 on dynamic feature "
-     "extraction across cohorts.", bold=True, space_after=4)
+     "extraction across cohorts.", bold=True, space_after=6,
+     line_spacing=1.5)
 main.element.body.append(SRC_TABLES[0])
 para(main, "", space_after=8)
 para(main, "Table 2. Baseline characteristics and early serial clinical "
      "measures in the Ruijin clinical validation cohort (2022\u20132025).",
-     bold=True, space_after=4)
+     bold=True, space_after=6, line_spacing=1.5)
 main.element.body.append(SRC_TABLES[1])
 
-heading(main, "Figure legends")
-para(main, FIG1_LEGEND, space_after=4)
-para(main, FIG2_LEGEND, space_after=4)
+page_break(main)
+heading(main, "Figure legends", size=13)
+para(main, FIG1_LEGEND, space_after=8, line_spacing=2.0,
+     align=WD_ALIGN_PARAGRAPH.JUSTIFY)
+para(main, FIG2_LEGEND, space_after=8, line_spacing=2.0,
+     align=WD_ALIGN_PARAGRAPH.JUSTIFY)
+
+setup_lines_and_footer(main)
 main.save(f"{OUTDIR}/sepsis_decision_model_nejmai.docx")
 print(f"main manuscript saved. abstract={abs_words} words, "
       f"intro->discussion={main_words} words")
@@ -597,7 +708,7 @@ print(f"main manuscript saved. abstract={abs_words} words, "
 sup = new_doc()
 para(sup, "Supplementary Appendix", bold=True, size=14, space_after=4)
 para(sup, TITLE, italic=True, size=11, space_after=2)
-para(sup, "Rui Zhang, Shengjun Liu, Jingyi Wu, et al.", size=11,
+para(sup, "Rui Zhang, Xu Wang, Shengjun Liu, et al.", size=11,
      space_after=10)
 
 heading(sup, "Table of contents")
@@ -863,9 +974,12 @@ cl_paras = [
  "per NEJM AI policy. The complete source code, frozen engine, "
  "AmsterdamUMCdb validation pipeline, and Engine v2 fallback models "
  "are publicly available at https://github.com/ccmzhangrui/sepsis-llm. "
- "No generative AI was used to create or alter scientific figures; all "
- "figures are original vector graphics generated from the analysis "
- "code.",
+ "In accordance with NEJM AI policy on AI-assisted technologies, we "
+ "disclose that Kimi-K3 (Moonshot AI) was used during manuscript "
+ "preparation to polish the text and create some elements of figures; "
+ "all AI-assisted output was reviewed and edited by the authors, who "
+ "take full responsibility for the accuracy and integrity of the work. "
+ "No AI-assisted technology is listed as an author.",
 
  "This manuscript is not under consideration elsewhere. All authors "
  "have read and approved the final version and declare no competing "
