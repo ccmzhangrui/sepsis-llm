@@ -1,0 +1,107 @@
+{
+  "flow": {
+    "total_admissions": 23106,
+    "unique_patients_first_adm": 20109,
+    "suspected_infection": 4291,
+    "sepsis3_analytic": 3949,
+    "excluded_sofa_lt2": 342
+  },
+  "baseline": {
+    "n": 3949,
+    "age_median": 65.0,
+    "age_iqr": [
+      55.0,
+      75.0
+    ],
+    "male_n": 2507,
+    "male_pct": 63.48442643707267,
+    "unknown_gender": 60,
+    "sofa2_onset_median": 2.0,
+    "sofa2_onset_iqr": [
+      2.0,
+      4.0
+    ],
+    "lac0_n": 2808,
+    "lac0_median": 1.9,
+    "lac0_iqr": [
+      1.2,
+      3.4000001
+    ],
+    "mort28_n": 851,
+    "mort28_pct": 21.54975943276779,
+    "vaso_esc_n": 1542,
+    "vaso_esc_pct": 39.04786021777665,
+    "hr_sd_median": 7.756287771866127,
+    "sofa_delta_median": 1.0,
+    "los_median_days": 5.2
+  },
+  "missingness": {
+    "lac0": {
+      "n_measured": 2808,
+      "pct": 71.10660926816915
+    },
+    "lac6": {
+      "n_measured": 2304,
+      "pct": 58.34388452772854
+    },
+    "lac12": {
+      "n_measured": 2096,
+      "pct": 53.07672828564194
+    },
+    "lac24": {
+      "n_measured": 1767,
+      "pct": 44.74550519118764
+    },
+    "lac48": {
+      "n_measured": 1052,
+      "pct": 26.63965560901494
+    },
+    "combined_6h_12h_missing_n": 2084,
+    "combined_6h_12h_missing_pct": 52.77285388706001
+  },
+  "alert_mortality28": {
+    "red_n": 2113,
+    "red_rate": 0.26171320397539044,
+    "green_n": 1836,
+    "green_rate": 0.16230936819172112,
+    "RR": 1.6124343708013988,
+    "RR_CI": [
+      1.4212549453958774,
+      1.8293302046646618
+    ],
+    "p": 4.745855242733707e-14
+  },
+  "alert_composite": {
+    "red_n": 2113,
+    "red_rate": 0.61239943208708,
+    "green_n": 1836,
+    "green_rate": 0.33986928104575165,
+    "RR": 1.8018675597946776,
+    "RR_CI": [
+      1.6763361212428403,
+      1.9367993458455657
+    ],
+    "p": 2.9973001015355318e-65
+  },
+  "alert_escalation": {
+    "red_n": 2113,
+    "red_rate": 0.5201135825840038,
+    "green_n": 1836,
+    "green_rate": 0.24128540305010893,
+    "RR": 2.155594893056955,
+    "RR_CI": [
+      1.9683574422879038,
+      2.360643063676636
+    ],
+    "p": 1.657360479922292e-71
+  },
+  "alert_red_share": 0.5350721701696632,
+  "indeterminate": {
+    "n": 2084,
+    "pct_of_cohort": 52.77285388706001,
+    "reclassified_red_n": 900,
+    "reclassified_red_pct": 43.186180422264876,
+    "red_mort28": 0.20333333333333334,
+    "green_mort28": 0.15033783783783783
+  }
+}

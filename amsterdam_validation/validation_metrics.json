@@ -1,0 +1,55 @@
+{
+  "imputation_complete_cases": {
+    "n_complete_cases": 866,
+    "engine": {
+      "MSE": 3.1177890829282964,
+      "MAE": 1.1584780991733097,
+      "R2": 0.4432534912000142
+    },
+    "linear": {
+      "MSE": 1.5542058596331314,
+      "MAE": 0.732632069912673,
+      "R2": 0.7224640078941713
+    },
+    "mean": {
+      "MSE": 1.881527281234008,
+      "MAE": 0.7779253254282139,
+      "R2": 0.6640139158948186
+    }
+  },
+  "alert_performance": {
+    "n": 3949,
+    "tp": 1294,
+    "fp": 819,
+    "tn": 1212,
+    "fn": 624,
+    "accuracy": 0.6345910357052418,
+    "sensitivity": 0.6746611053180396,
+    "specificity": 0.5967503692762186,
+    "cohens_kappa": 0.2706460081472417,
+    "AUROC": 0.6912911139075302,
+    "AUPRC": 0.5711767650106072,
+    "prevalence": 0.48569258040010127,
+    "mort28_rate": 0.2154975943276779,
+    "escalation_rate": 0.39047860217776653
+  },
+  "reclassification": {
+    "indeterminate_n": 2084,
+    "indeterminate_share_of_cohort": 0.5277285388706001,
+    "reclassified_red_n": 900,
+    "reclassified_red_share": 0.43186180422264875
+  },
+  "baseline": {
+    "n": 3949,
+    "male_share": 0.6348442643707267,
+    "mort28": 0.2154975943276779,
+    "sofa0_median": 2.0,
+    "sofa0_iqr": [
+      2.0,
+      4.0
+    ],
+    "lac0_median": 1.9,
+    "los_median": 124.0,
+    "agegroup_mode": "70-79"
+  }
+}
