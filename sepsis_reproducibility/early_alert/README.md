@@ -53,6 +53,39 @@ python evaluate.py evaluate --input /path/to/site_evaluation.csv \
   --output /path/to/site_summary_with_local_thresholds.json
 ```
 
+### Compare three operating points using patient counts
+
+`site_thresholds.py` keeps the same risk model and compares the original
+cutoff with two cutoffs estimated from an unlabeled local reference: an
+empirical quantile and a more conservative order statistic. The target is
+the fraction of eligible **patients** with any alert (default 20%), using
+each patient's maximum score across their eligible stays. The report also
+shows workload per stay, missed 7-day deaths, and positive predictive value.
+Unscored stays and patients stay in the workload denominators. The patient
+horizon and collection of eligible stays must match across cohorts.
+
+```sh
+python site_thresholds.py compare --reference /path/to/recent_local_reference.csv \
+  --input /path/to/later_local_evaluation.csv --model amsterdam_24h_v1.json \
+  --target 0.20 --output /path/to/site_workload.json
+```
+
+Use separate periods close to the intended evaluation period, with no repeated
+patients across them. The buffering rule chooses the largest number of
+reference scores allowed above the cutoff whose lower-tail binomial CDF under
+the target is at most 0.05. The one-sided 95% interpretation concerns the
+population rate of patients with any alert under independent, identically
+distributed patient scores. It is not a cap on the observed rate or a remedy
+for drift. The command reports reference insufficiency rather than substituting
+another threshold silently. `stress` provides descriptive repeated patient
+splits within one cohort; these are not independent validation studies.
+
+In the Amsterdam test period, a repeated within-period check found median
+workloads of 44.7, 18.9, and 16.4 alerts per 100 stays respectively, with
+median 7-day death capture of 68.5%, 44.9%, and 42.8%. However, the buffered
+cutoff estimated from 2003–2009 still flagged 43.8 per 100 stays in 2010–2016.
+Treat old local reference data as a possible source of threshold failure.
+
 ## Cohort and inputs
 
 Suspected infection is anchored to the earlier timestamp of a paired IV
