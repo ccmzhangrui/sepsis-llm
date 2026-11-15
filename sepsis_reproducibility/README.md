@@ -25,4 +25,6 @@ See [the eICU, MIMIC-IV, and Ruijin replay instructions](multicohort/README.md) 
 
 ## Independent-validation candidate
 
+The [24-hour alert evaluation](early_alert/README.md) includes the frozen Amsterdam model, a local evaluation command, and both fixed-threshold and equal-alert-volume comparisons. It is a separate prognostic analysis with a new cohort definition and 7-day endpoint.
+
 The [landmark workflow](landmark/README.md) provides the updated 48-hour alert comparison, missing-input handling, the patient-grouped lactate benchmark, and a frozen two-anchor imputer with a separate external evaluation command.

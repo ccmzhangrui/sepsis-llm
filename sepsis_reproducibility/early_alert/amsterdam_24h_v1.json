@@ -1,0 +1,65 @@
+{
+  "schema": "suspected_infection_24h_7d_mortality_v1",
+  "alert_budget_in_development": 0.2,
+  "fit_era": "2003-2009",
+  "primary_comparator": "organ",
+  "components": {
+    "organ": {
+      "fit_stays": 686,
+      "fit_events": 81,
+      "coefficients": {
+        "sofa_observed": 0.12843298102579898,
+        "sofa_components": 0.1363790512360168
+      },
+      "intercept": -3.1657601752008038
+    },
+    "vitals": {
+      "fit_stays": 670,
+      "fit_events": 80,
+      "coefficients": {
+        "sofa_observed": 0.11420621905432408,
+        "sofa_components": 0.1583948085715051,
+        "map_median": -0.031546117365916414,
+        "hr_median": -0.016987456777182105,
+        "rr_median": 0.04888822732853955
+      },
+      "intercept": -0.15167077799047668
+    },
+    "lactate": {
+      "fit_stays": 197,
+      "fit_events": 42,
+      "coefficients": {
+        "sofa_observed": -0.0011020726194709747,
+        "sofa_components": 0.17703358277192946,
+        "map_median": -0.026829355741536477,
+        "hr_median": -0.006667732775619952,
+        "rr_median": 0.021786949479501008,
+        "lactate_latest": 0.24076373515796856
+      },
+      "intercept": -0.44778441171838657
+    }
+  },
+  "policies": {
+    "organ": {
+      "intercept": 0.6092924558306883,
+      "slope": 1.502194642243039,
+      "threshold": 0.14242295288579562,
+      "calibration_scored": 303,
+      "calibration_alerts": 58
+    },
+    "vitals": {
+      "intercept": -0.3789515432996248,
+      "slope": 0.9828987943556893,
+      "threshold": 0.13644995401010623,
+      "calibration_scored": 303,
+      "calibration_alerts": 60
+    },
+    "lactate": {
+      "intercept": -0.20862265438349667,
+      "slope": 1.190437116675309,
+      "threshold": 0.13103615554305645,
+      "calibration_scored": 303,
+      "calibration_alerts": 60
+    }
+  }
+}
