@@ -18,3 +18,7 @@ The required fields are unique `admissionid`; `sofa0` and `sofa48`; heart-rate a
 The rule replay uses fractional lactate clearance and a threshold of 0.10 (10%). Reconstruction uses two pooled masked measurements per eligible complete encounter and is retrospective; this calculation is separate from the alert replay. Later lactate availability (24/48 hours) and bracketed availability are separate measures. The legacy repository also includes the held-out portability comparison and the exploratory Engine v2 fallback; these are separate from the pooled benchmark in this directory.
 
 Do not commit credentialed data, clinical records, local data paths, or patient-level outputs. This is research code for reproducing a retrospective analysis.
+
+## Additional cohort analyses
+
+See [the eICU, MIMIC-IV, and Ruijin replay instructions](multicohort/README.md) for the separate exploratory analyses and local input requirements.
