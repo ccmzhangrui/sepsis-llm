@@ -22,3 +22,7 @@ Do not commit credentialed data, clinical records, local data paths, or patient-
 ## Additional cohort analyses
 
 See [the eICU, MIMIC-IV, and Ruijin replay instructions](multicohort/README.md) for the separate exploratory analyses and local input requirements.
+
+## Independent-validation candidate
+
+The [landmark workflow](landmark/README.md) provides the updated 48-hour alert comparison, missing-input handling, the patient-grouped lactate benchmark, and a frozen two-anchor imputer with a separate external evaluation command.

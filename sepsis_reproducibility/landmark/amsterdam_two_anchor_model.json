@@ -1,0 +1,22 @@
+{
+  "schema": "two_observed_lactate_anchors_v1",
+  "fit_scope": "AmsterdamUMCdb training partition, seed 2026",
+  "training_patients": 963,
+  "training_stays": 1011,
+  "targets": {
+    "lac6": {
+      "intercept": 0.18107635517559562,
+      "coefficients": {
+        "lac0": 0.6003016281985153,
+        "lac24": 0.2838729421150201
+      }
+    },
+    "lac12": {
+      "intercept": 0.15852089741861786,
+      "coefficients": {
+        "lac0": 0.3552651370638583,
+        "lac24": 0.5586584545533321
+      }
+    }
+  }
+}
