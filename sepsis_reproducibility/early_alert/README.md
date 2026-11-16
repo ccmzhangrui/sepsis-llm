@@ -86,6 +86,44 @@ median 7-day death capture of 68.5%, 44.9%, and 42.8%. However, the buffered
 cutoff estimated from 2003–2009 still flagged 43.8 per 100 stays in 2010–2016.
 Treat old local reference data as a possible source of threshold failure.
 
+### Compare mortality coverage while retaining the original urgent alerts
+
+`review_policy.py` evaluates a two-tier policy. The original frozen lactate
+strategy supplies the urgent alert set. A second, non-interruptive tier
+includes unscored stays and additional stays above a lower score cutoff.
+The JSON reports the alerts, reviews, captured events, and misses by tier.
+
+Use an earlier, patient-disjoint reference with known seven-day outcomes to
+estimate cutoffs for 90%, 95%, and 100% observed reference event capture.
+Only the reference outcomes enter cutoff selection. Optionally add the
+experimental age model and an `age_group` column using `18-39`, `40-49`,
+`50-59`, `60-69`, `70-79`, or `80+`. Its age inputs are the group midpoints,
+using 85 for the open-ended group. Missing or unrecognized age groups use the
+original score. The original alert set is determined independently of age.
+
+```sh
+python review_policy.py evaluate --reference /path/to/earlier_labelled_reference.csv \
+  --input /path/to/later_evaluation.csv --baseline amsterdam_24h_v1.json \
+  --age-model amsterdam_24h_age_review.json --output /path/to/review_summary.json
+```
+
+The universal-review benchmark puts every stay in the alert or review set
+by construction. The retrospective zero-miss diagnostic uses evaluation
+outcomes to estimate what full capture would have cost for the tested scoring
+rule. Keep it separate from the cutoffs selected in the reference set.
+In Amsterdam, the age candidate calibrated to capture all 31 earlier deaths
+still missed 5 of 324 later deaths while sending 2,584 of 2,642 stays to alert
+or review. This was an exploratory reanalysis of the same temporal cohort.
+
+To refit the experimental age model with the same Amsterdam partitions, first
+prepare the cohort with `extract_amsterdam.py`, then run:
+
+```sh
+python review_policy.py develop --input /path/to/private_snapshot.csv \
+  --baseline amsterdam_24h_v1.json --age-model /path/to/rebuilt_age_model.json \
+  --output /path/to/review_summary.json
+```
+
 ## Cohort and inputs
 
 Suspected infection is anchored to the earlier timestamp of a paired IV

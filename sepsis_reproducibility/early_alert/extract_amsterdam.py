@@ -91,14 +91,15 @@ def make_cohort(directory, admissions_path, culture_orders_path):
     )
     admissions = pd.read_csv(
         admissions_path,
-        usecols=[
+        usecols=lambda col: col in {
             "admissionid",
             "patientid",
             "admissionyeargroup",
+            "agegroup",
             "admittedat",
             "dischargedat",
             "dateofdeath",
-        ],
+        },
     )
     infection = pd.read_csv(directory / "cohort_suspected_infection.csv").merge(
         admissions, on="admissionid", validate="one_to_one"
@@ -135,6 +136,7 @@ def make_cohort(directory, admissions_path, culture_orders_path):
             "stay_id": stay,
             "patient_id": row.patientid,
             "era": row.admissionyeargroup,
+            "age_group": getattr(row, "agegroup", None),
             "snapshot_hour": LANDMARK,
             "death_7d": int(death_7d),
             "death_72h": int(LANDMARK < death <= LANDMARK + 72),

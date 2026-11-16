@@ -1,0 +1,71 @@
+{
+  "schema": "suspected_infection_24h_7d_mortality_v1",
+  "alert_budget_in_development": 0.2,
+  "fit_era": "2003-2009",
+  "primary_comparator": "organ",
+  "components": {
+    "organ": {
+      "fit_stays": 686,
+      "fit_events": 81,
+      "coefficients": {
+        "sofa_observed": 0.12573296027946343,
+        "sofa_components": 0.16150642381629995,
+        "age_midpoint": 0.015453623245274958
+      },
+      "intercept": -4.205618520695268
+    },
+    "vitals": {
+      "fit_stays": 670,
+      "fit_events": 80,
+      "coefficients": {
+        "sofa_observed": 0.11136803974999887,
+        "sofa_components": 0.17720577364026002,
+        "map_median": -0.030009664445928185,
+        "hr_median": -0.0163768336119884,
+        "rr_median": 0.04887120783251523,
+        "age_midpoint": 0.01033207073679344
+      },
+      "intercept": -1.0245959356378975
+    },
+    "lactate": {
+      "fit_stays": 197,
+      "fit_events": 42,
+      "coefficients": {
+        "sofa_observed": -0.00796042109654571,
+        "sofa_components": 0.21389629000960955,
+        "map_median": -0.02535863856711693,
+        "hr_median": -0.00532423388830625,
+        "rr_median": 0.023805183539981244,
+        "lactate_latest": 0.24324291964488093,
+        "age_midpoint": 0.013375367107597643
+      },
+      "intercept": -1.6459479143089526
+    }
+  },
+  "policies": {
+    "organ": {
+      "intercept": 0.3875151217994547,
+      "slope": 1.372194509846911,
+      "threshold": 0.13216418602886307,
+      "calibration_scored": 303,
+      "calibration_alerts": 59
+    },
+    "vitals": {
+      "intercept": -0.39723523281634576,
+      "slope": 0.9656944910055505,
+      "threshold": 0.13527585274143364,
+      "calibration_scored": 303,
+      "calibration_alerts": 60
+    },
+    "lactate": {
+      "intercept": -0.21368452827975373,
+      "slope": 1.1825794393226554,
+      "threshold": 0.13553106392265724,
+      "calibration_scored": 303,
+      "calibration_alerts": 60
+    }
+  },
+  "additional_features": [
+    "age_midpoint"
+  ]
+}

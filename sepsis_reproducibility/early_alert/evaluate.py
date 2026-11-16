@@ -77,13 +77,14 @@ def load(path, *, development=False):
     return df
 
 
-def available(df, route):
-    return df.sofa_components.ge(2) & df.loc[:, FEATURES[route]].notna().all(axis=1)
+def available(df, route, extra=()):
+    columns = (*FEATURES[route], *extra)
+    return df.sofa_components.ge(2) & df.loc[:, columns].notna().all(axis=1)
 
 
-def train_component(train, route):
-    columns = list(FEATURES[route])
-    data = train[available(train, route) & train.death_7d.notna()]
+def train_component(train, route, extra=()):
+    columns = [*FEATURES[route], *extra]
+    data = train[available(train, route, extra) & train.death_7d.notna()]
     if min(data.death_7d.eq(1).sum(), data.death_7d.eq(0).sum()) < 10:
         raise ValueError(
             f"Too few outcome events or non-events to fit the {route} model."
@@ -114,7 +115,7 @@ def linear_scores(df, model, policy):
     used = pd.Series("indeterminate", index=df.index)
     for route in allowed:
         component = model["components"][route]
-        ok = available(df, route)
+        ok = available(df, route, model.get("additional_features", ()))
         weights = pd.Series(component["coefficients"])
         scores.loc[ok] = df.loc[ok, weights.index].dot(weights) + component["intercept"]
         used.loc[ok] = route
@@ -146,16 +147,18 @@ def split(df):
     return fit, calibration, newer, int(df.era.eq("2003-2009").sum() - len(older))
 
 
-def fit(df):
+def fit(df, *, additional_features=()):
     train, calibration, test, removed = split(df)
     model = {
         "schema": SCHEMA,
         "alert_budget_in_development": BUDGET,
         "fit_era": "2003-2009",
         "primary_comparator": "organ",
-        "components": {k: train_component(train, k) for k in FEATURES},
+        "components": {k: train_component(train, k, additional_features) for k in FEATURES},
         "policies": {},
     }
+    if additional_features:
+        model["additional_features"] = list(additional_features)
     for name in FEATURES:
         scores, _ = linear_scores(calibration, model, name)
         ok = scores.notna() & calibration.death_7d.notna()
