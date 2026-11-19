@@ -1,0 +1,1293 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="脓毒症24小时风险模型研究路演。交互演示合成病例、固定模型评分、警报与复核工作量。"><title>Sepsis Research · 从监测到复核</title>
+<style>:root{color-scheme:light;--ink:#18394c;--muted:#5d7585;--teal:#087f83;--teal-dark:#08646a;--teal-light:#e5f4f2;--blue:#6683a7;--line:#dce6eb;--paper:#fff;--page:#f3f7f9;--danger:#a64842;--amber:#8a631e;--rail:222px}
+*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--ink);font:16px/1.55 "Inter","PingFang SC","Microsoft YaHei",sans-serif}button,input,select{font:inherit}button,a,input,select,summary{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:disabled{cursor:default;opacity:.4}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #19a3a5;outline-offset:3px}h1,h2,h3,p{margin:0}a{color:var(--teal);text-decoration:none}button{border:0}p{color:var(--muted)}[hidden]{display:none!important}.skip{position:fixed;top:-100px;left:250px;z-index:20;background:white;padding:12px}.skip:focus{top:10px}.rail{position:fixed;inset:0 auto 0 0;width:var(--rail);background:white;border-right:1px solid var(--line);padding:30px 21px;display:flex;flex-direction:column;z-index:5}.brand{color:var(--ink);display:flex;gap:13px;align-items:center;font-size:17px;line-height:1.05;font-weight:750;letter-spacing:1.4px}.brand small{font-size:8.5px;letter-spacing:1.4px;font-weight:550;color:var(--muted)}.brand-symbol{position:relative;width:43px;height:43px;background:var(--teal);color:white;border-radius:12px;font:italic 36px/40px Georgia;text-align:center;padding-right:7px}.brand-symbol span{font:10px/1 sans-serif;position:absolute;right:4px;bottom:5px}.rail-caption{font-size:13px;margin:40px 12px 15px;letter-spacing:1px}.rail nav{display:flex;flex-direction:column;gap:8px}.rail nav button{padding:13px 12px;background:none;color:var(--muted);text-align:left;display:flex;align-items:center;gap:12px;border-radius:8px;font-size:14px;font-weight:550}.nav-index{font-size:12px;color:#8195a2;font-variant-numeric:tabular-nums}.rail nav button.active{color:var(--teal-dark);background:var(--teal-light)}.rail nav button.active .nav-index{color:var(--teal)}.rail nav button:hover{background:#f1f6f8}.rail-bottom{margin-top:auto;padding:20px 11px 4px;font-size:12px}.model-label{font-size:10px;letter-spacing:1px;color:#748896}.rail-bottom p{margin:7px 0}.rail-bottom a{font-size:12px}.workspace{margin-left:var(--rail);min-height:100vh;display:flex;flex-direction:column}.topbar{height:75px;display:flex;justify-content:space-between;align-items:center;padding:0 38px;border-bottom:1px solid var(--line);background:#fff9}.breadcrumb{font-size:14px;display:flex;gap:13px;color:var(--muted)}.breadcrumb #currentScene{color:var(--ink);font-weight:550}.divider{color:#a8b9c3}.tools{display:flex;align-items:center;gap:12px}.research-tag{font-size:12px;background:#edf2f6;padding:5px 10px;color:var(--muted);border-radius:5px}.tool{background:none;border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:13px;padding:6px 11px}.tool:hover{background:#f4f8fa}main{width:100%;max-width:1430px;margin:0 auto;padding:34px 38px 34px;flex:1}.scene-intro{margin-bottom:26px}.eyebrow{font-size:10px;letter-spacing:1.7px;color:var(--teal);font-weight:650;margin-bottom:12px}h1{font-size:clamp(25px,2.5vw,37px);font-weight:650;letter-spacing:-1.1px;line-height:1.3;margin-bottom:12px}h2{font-size:17px;line-height:1.45;font-weight:650}.lead{font-size:15px;max-width:880px;line-height:1.8}.panel{border:1px solid var(--line);background:var(--paper);border-radius:13px;padding:25px}.section-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:22px}.small-label{font-size:12px;color:var(--muted)}.overview-grid{display:grid;grid-template-columns:minmax(0,1.46fr) minmax(290px,1fr);gap:20px}.timeline-panel{display:flex;flex-direction:column;justify-content:space-between}.time-track{position:relative;display:flex;align-items:flex-start;margin:31px 0 32px;padding:0 2px}.time-node{width:57px;flex-shrink:0;position:relative;padding-top:20px;text-align:center}.time-node .node{position:absolute;top:-3px;left:calc(50% - 4px);background:#98b6c5;border-radius:50%;width:8px;height:8px;z-index:1}.time-node strong{font-size:15px;white-space:nowrap;letter-spacing:-.5px}.time-node p{font-size:11px;margin-top:5px;white-space:nowrap;position:relative;left:50%;transform:translateX(-50%);width:max-content}.assessment .node{background:var(--teal);width:13px;height:13px;top:-5px;left:calc(50% - 6px);box-shadow:0 0 0 6px #e0f2ed}.assessment strong{color:var(--teal)}.time-window{flex:1;border-top:2px solid #95b7c4;padding-top:12px;min-width:25px}.time-window span{display:block;position:relative;top:-37px;text-align:center;font-size:10px;color:var(--muted);white-space:nowrap}.time-window.future{border-color:#8fc9c9;border-top-style:dashed}.input-families{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-bottom:20px}.input-families>div{padding:13px 9px;border-radius:9px;background:#f4f7f9;display:flex;flex-direction:column;gap:7px}.input-families strong{font-size:12px;font-weight:600}.input-families small{font-size:10px;color:var(--muted);line-height:1.5}.family-icon{height:23px;width:23px;background:#e3ebf1;border-radius:6px;font-size:12px;text-align:center;line-height:23px;color:#5a7589;font-weight:600}.input-families .accent-family{background:#e9f5f2}.accent-family .family-icon{color:var(--teal);background:#d4ece6}.micro{font-size:12px;line-height:1.75;color:var(--muted)}.hero-evidence{background:#ebf7f5;border-color:#d5eae6;padding:25px 27px}.hero-evidence h2{margin:8px 0 25px;font-size:21px;letter-spacing:-.4px}.comparison-mini>div{position:relative;margin:20px 0 0;padding-right:43px}.comparison-mini>div>span{font-size:12px}.mini-track{height:9px;background:#dce9e7;border-radius:5px;margin-top:8px;overflow:hidden}.mini-track i{display:block;height:100%;background:#7895a7;border-radius:5px}.mini-track .teal{background:var(--teal)}.comparison-mini strong{position:absolute;right:0;bottom:-5px;font-size:21px;font-variant-numeric:tabular-nums}.gain{display:flex;align-items:center;gap:13px;margin:25px 0 13px;color:var(--teal-dark)}.gain strong{font:500 38px/1 "Inter",sans-serif;letter-spacing:-2px}.gain span{font-size:13px}.cohort-strip{display:flex;align-items:center;padding:26px 5px 4px;gap:30px}.cohort-strip>div{flex:1}.cohort-strip strong{font-size:25px;line-height:1.3;font-weight:650;letter-spacing:-.7px;display:block;font-variant-numeric:tabular-nums}.cohort-strip strong small{font-size:14px;color:var(--teal);margin-left:5px;font-weight:550}.cohort-strip>div>span{font-size:12px;color:var(--muted)}.primary,.secondary{display:inline-flex;justify-content:center;align-items:center;min-height:40px;padding:10px 18px;border-radius:7px;font-size:14px;font-weight:550;white-space:nowrap;transition:background .15s}.primary{background:var(--teal);color:white}.primary:hover{background:var(--teal-dark)}.secondary{background:white;color:var(--ink);border:1px solid var(--line)}.secondary:hover{background:#eff5f7}.text-button{background:transparent;color:var(--teal);font-size:13px;font-weight:550;padding:8px 0;text-align:left}.text-button:hover{text-decoration:underline}.presentation-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 38px;border-top:1px solid var(--line);min-height:72px;gap:22px;background:rgba(255,255,255,.88)}.presentation-dots{display:flex;gap:8px}.presentation-dots button{padding:0;width:7px;height:7px;border-radius:10px;background:#cfdee4;transition:width .2s}.presentation-dots button.active{width:25px;background:var(--teal)}.page-controls{display:flex;align-items:center;gap:18px}.page-controls>span{font-size:12px;min-width:34px;color:var(--muted)}.page-controls button{min-height:35px;padding:7px 15px;font-size:12px}.case-pills{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:19px}.case-pills button,.segmented button{padding:9px 15px;font-size:13px;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:7px}.case-pills button:hover{background:#edf4f6}.case-pills .selected{background:var(--teal-light);border-color:#85c2bd;color:var(--teal-dark)}.snapshot-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(285px,1fr);gap:20px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 18px}.field{display:flex;flex-direction:column;gap:7px}.field>span{font-size:13px;color:var(--ink);font-weight:550}.field>small{font-size:10px;line-height:1.45;color:var(--muted)}.input-wrap{display:flex;align-items:center;gap:5px;border:1px solid #cedce3;border-radius:7px;padding-right:12px;background:white;min-height:44px;overflow:hidden}.input-wrap input{width:100%;min-width:0;border:0;padding:8px 11px;color:var(--ink);font-size:16px;font-variant-numeric:tabular-nums;background:transparent;outline-offset:-3px}.input-wrap:focus-within{border-color:var(--teal)}.input-wrap>span{font-size:11px;color:var(--muted);white-space:nowrap}.input-wrap input:invalid{box-shadow:inset 0 -2px var(--danger)}.field select{padding:10px 27px 10px 11px;font-size:14px;color:var(--ink);border:1px solid #cedce3;border-radius:7px;min-height:44px;background:white;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='none' stroke='%235d7585' d='m1 1 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}.lactate-field .input-wrap{border-color:#85bcb7;background:#f6fcfa}.input-footer{margin-top:19px;border-top:1px solid var(--line);padding-top:10px;display:flex;gap:12px;justify-content:space-between;align-items:center}.input-footer>span{font-size:10px;color:var(--muted);max-width:220px;text-align:right}.live-badge{font-size:10px;background:#edf6f2;color:var(--teal);border-radius:5px;padding:5px 8px}.risk-display{text-align:center;padding:6px 0 20px}.risk-orbit{margin:0 auto 15px;width:156px;height:156px;border:0;background:conic-gradient(#58a6a0 calc(var(--risk,0)*1%),#e0efec 0);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}.risk-orbit:before{content:"";position:absolute;inset:10px;background:white;border-radius:50%}.risk-orbit>span{position:relative;z-index:1;font-size:42px;font-weight:550;letter-spacing:-2px;font-variant-numeric:tabular-nums}.risk-orbit>span>span{font-size:20px;color:var(--muted);letter-spacing:0;padding-left:3px}.risk-display p{font-size:12px;max-width:230px;margin:auto;line-height:1.6}.state-banner{font-size:13px;font-weight:600;border-radius:7px;padding:11px 14px;text-align:center;background:#edf4f7;color:var(--ink)}.state-banner.urgent{background:#fbece9;color:var(--danger)}.state-banner.review,.state-banner.dataReview{background:#fbf3e5;color:var(--amber)}.state-banner.invalid,.state-banner.unscored{background:#edf0f3;color:#5d7182}.state-banner.below{background:#eaf4f1;color:#3e7166}.route-stack{padding:15px 0 12px}.route-item{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:9px 0;border-bottom:1px solid #e8eef1}.route-item span{color:var(--muted)}.route-item strong{font-size:12px;font-weight:550}.route-item.used strong{color:var(--teal)}.full-button{width:100%;margin-top:20px}.decision-grid{display:grid;grid-template-columns: minmax(280px,.86fr) minmax(0,1.4fr);gap:20px}.decision-summary h2{font-size:27px;line-height:1.3;margin:12px 0}.lead-small{font-size:14px;line-height:1.8}.decision-risk{padding:23px 0;display:flex;align-items:baseline;gap:14px}.decision-risk>strong{font-size:37px;letter-spacing:-1.5px;font-variant-numeric:tabular-nums;font-weight:550}.decision-risk>span{font-size:11px;color:var(--muted)}.decision-summary>.text-button{margin-top:15px}.pathway{margin-top:20px}.path-step{display:flex;gap:17px;position:relative;padding-bottom:23px}.path-step:not(:last-child):after{content:"";position:absolute;width:1px;background:#d8e4e9;top:27px;bottom:5px;left:12px}.path-step .path-node{flex-shrink:0;height:26px;width:26px;border:1px solid #d3e1e6;border-radius:50%;font:12px/25px sans-serif;text-align:center;background:#f3f7f9;color:var(--muted)}.path-step.active .path-node{background:var(--teal);color:white;border-color:var(--teal)}.path-step strong{font-size:14px;font-weight:600}.path-step p{font-size:12px;margin-top:5px;line-height:1.7}.path-step .path-out{display:inline-block;font-size:11px;padding:4px 9px;border-radius:4px;background:#edf5f3;color:var(--teal);margin-top:6px}.review-metrics{display:grid;grid-template-columns:1fr 1fr;gap:15px;border-top:1px solid var(--line);padding:18px 0}.review-metrics strong{display:block;font-size:24px;font-weight:550;font-variant-numeric:tabular-nums}.review-metrics span{font-size:11px;color:var(--muted)}.segmented{display:flex;gap:5px;padding:4px;background:#e8eff2;border-radius:9px;width:max-content;margin-bottom:20px}.segmented button{border:0;border-radius:6px;padding:8px 16px}.segmented .selected{background:white;color:var(--ink);box-shadow:0 1px 4px #324e5b0c}.ranking-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(290px,.95fr);gap:20px}.chart-wrap{position:relative;height:250px;width:100%}.chart-wrap canvas{display:block;width:100%;height:100%}.chart-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:13px}.legend-dot:before{content:"";display:inline-block;margin-right:6px;vertical-align:1px;width:7px;height:7px;border-radius:50%;background:#a3b1c2}.legend-dot.vitals:before{background:#6683a7}.legend-dot.lactate:before{background:var(--teal)}.legend-dot.light:before{background:#a2d7d2}.capacity-control{display:block;border-top:1px solid var(--line);padding-top:15px;margin-top:18px}.capacity-control>span{display:flex;align-items:center;justify-content:space-between;font-size:13px}.capacity-control strong{font-size:22px;color:var(--teal);font-weight:550}.capacity-control input{width:100%;margin:14px 0 7px;accent-color:var(--teal);cursor:pointer}.capacity-control small{font-size:10px;color:var(--muted)}.ranking-results h2{margin:9px 0 20px;font-size:14px;font-weight:500}.ranking-results h2>span:first-child{font-size:30px;font-weight:550;margin-right:5px;letter-spacing:-1px}.rank-row{margin:20px 0}.rank-row .rank-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:12px}.rank-heading strong{font-size:20px;font-weight:550;color:var(--ink);font-variant-numeric:tabular-nums}.rank-heading small{color:var(--muted);font-size:10px;font-weight:400}.rank-track{margin-top:7px;background:#edf2f5;height:7px;border-radius:4px;overflow:hidden}.rank-track>span{display:block;height:100%;background:#a3b1c2;transition:width .16s}.rank-track>span.vitals{background:var(--blue)}.rank-track>span.lactate{background:var(--teal)}.delta-callout{background:#e9f6f3;color:var(--teal-dark);font-size:14px;font-weight:600;padding:13px;border-radius:7px;margin:22px 0 10px}.known-interval{font-size:11px;color:var(--muted);min-height:42px;line-height:1.6}.fixed-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(270px,.85fr);gap:20px}.workload-item{padding:19px 0 25px}.workload-item>div:first-child{display:flex;justify-content:space-between;gap:10px;align-items:baseline}.workload-item strong{font-size:14px;font-weight:550}.workload-item .workload-total{font-size:23px;font-weight:550;color:var(--ink);font-variant-numeric:tabular-nums}.workload-track{display:flex;height:19px;border-radius:4px;overflow:hidden;background:#edf2f5;margin:12px 0}.workload-track span{height:100%;background:var(--teal)}.workload-track span+span{background:#a2d7d2}.workload-stats{font-size:12px;color:var(--muted)}.workload-stats b{font-size:14px;color:var(--ink);font-weight:550}.reality-panel{background:#eaf6f4;border-color:#d5e9e5}.reality-number{font-size:62px;letter-spacing:-3px;font-weight:500;display:block;margin:20px 0 8px}.reality-number span{font-size:24px;letter-spacing:0}.reality-panel h2{font-size:20px}.reality-panel p{font-size:14px;line-height:1.8;margin:18px 0 25px}.validation-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(290px,1fr);gap:20px}.site-row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:20px 0}.site-row:last-of-type{margin-bottom:17px}.site-row strong{display:block;font-size:14px;font-weight:550}.site-row small{display:block;font-size:11px;color:var(--muted);margin-top:5px}.site-status{font-size:10px;padding:4px 8px;background:#f2f2ea;color:#867443;border-radius:4px;white-space:nowrap;align-self:center}.site-status.ready{background:#e8f5ef;color:var(--teal)}.repo-panel{background:#fbfdfd}.repo-title{font-size:18px;color:var(--ink);margin:27px 0 12px;font-weight:550;letter-spacing:-.4px}.repo-panel>p:not(.repo-title){font-size:14px;line-height:1.8}.repo-link{display:flex;margin:24px 0 3px}.repo-panel details{border-top:1px solid var(--line);padding-top:16px;margin-top:22px}.repo-panel summary{font-size:13px;color:var(--muted);cursor:pointer}.repo-panel details p{font-size:12px;margin:15px 0;line-height:1.8}.repo-panel code{display:block;font:10px/1.8 monospace;color:var(--muted);word-break:break-all}.closing-strip{display:flex;align-items:center;justify-content:space-between;padding:25px 4px 8px;gap:22px}.closing-strip h2{font-size:17px;margin-bottom:6px}.closing-strip p{font-size:13px}.presenter-notes{border-left:3px solid #8ebfb6;margin:25px 3px 2px;padding:10px 16px;background:#ebf3f3}.presenter-notes strong{font-size:12px;color:var(--teal)}.presenter-notes p{font-size:13px;margin-top:7px;line-height:1.8}.toast{position:fixed;bottom:88px;left:calc(50% + var(--rail)/2);transform:translateX(-50%);padding:11px 18px;border-radius:7px;background:var(--ink);color:white;font-size:13px;z-index:30;max-width:85vw;box-shadow:0 6px 30px #0b354332}
+@media(min-width:1500px){main{padding-top:48px}.scene-intro{margin-bottom:34px}.overview-grid{gap:26px}.panel{padding:30px}.hero-evidence{padding:30px}.time-track{margin:45px 0}.cohort-strip{padding-top:36px}.chart-wrap{height:310px}}
+@media(max-width:1160px){:root{--rail:186px}.rail{padding:25px 12px}.brand{gap:8px;font-size:15px}.rail nav button{font-size:12px;padding:13px 9px;gap:8px}main{padding:25px 24px}.topbar,.presentation-bar{padding-left:24px;padding-right:24px}.panel{padding:21px}.overview-grid{grid-template-columns:minmax(0,1.3fr) minmax(260px,1fr)}.time-window span{font-size:9px}.input-families{gap:7px}.input-families strong{font-size:11px}.hero-evidence h2{font-size:18px}.cohort-strip{gap:16px}.cohort-strip strong{font-size:22px}.cohort-strip .primary{font-size:12px;padding:10px 12px}.snapshot-grid{grid-template-columns:minmax(0,1.25fr) minmax(255px,1fr)}.fields{gap:16px 12px}.field>span{font-size:12px}.ranking-grid{grid-template-columns:minmax(0,1.2fr) minmax(260px,1fr)}.chart-legend{gap:10px}.validation-grid{grid-template-columns:1.2fr 1fr}.site-row small{font-size:10px}}
+@media(max-width:930px){:root{--rail:0px}.rail{position:relative;width:auto;height:auto;inset:auto;padding:16px 24px;border-right:0;border-bottom:1px solid var(--line);flex-direction:row;align-items:center;justify-content:space-between;gap:20px}.brand small{font-size:8px}.brand-symbol{width:35px;height:35px;line-height:33px;font-size:30px}.brand{font-size:13px}.rail-caption,.rail-bottom{display:none}.rail nav{flex-direction:row;gap:2px}.rail nav button{padding:9px;font-size:12px}.nav-index{display:none}.topbar{height:59px}.workspace{margin-left:0}.overview-grid{grid-template-columns:1.3fr 1fr}.toast{left:50%}.snapshot-grid{grid-template-columns:1.3fr 1fr}main{padding:25px 24px}.decision-grid{grid-template-columns:.85fr 1.2fr}}
+@media(max-width:720px){.rail{display:block;padding:14px 18px 9px}.brand{font-size:13px}.rail nav{margin-top:15px;justify-content:space-between;gap:1px}.rail nav button{font-size:11px;padding:9px 7px}.topbar{padding:0 18px}.breadcrumb{font-size:11px;gap:8px}.research-tag{display:none}.tools{gap:7px}.tool{font-size:11px;padding:5px 8px}main{padding:24px 18px 25px}h1{font-size:27px;letter-spacing:-.7px}.eyebrow{font-size:9px;letter-spacing:1.2px}.lead{font-size:13px}.scene-intro{margin-bottom:20px}.overview-grid,.snapshot-grid,.decision-grid,.ranking-grid,.fixed-layout,.validation-grid{grid-template-columns:1fr}.panel{padding:21px}.cohort-strip{flex-wrap:wrap;gap:22px;padding:25px 3px}.cohort-strip>div{min-width:27%;flex-basis:27%}.cohort-strip .primary{width:100%;margin-top:4px}.cohort-strip strong{font-size:23px}.cohort-strip strong small{font-size:10px;display:block;margin:1px 0 0}.cohort-strip>div>span{font-size:10px}.section-head{gap:8px}.section-head h2{font-size:16px}.small-label{font-size:10px}.time-window span{font-size:9px;white-space:normal;top:-45px;line-height:1.4;padding:0 3px}.time-node{width:53px}.input-families strong{font-size:11px}.input-families small{font-size:10px}.hero-evidence h2{font-size:20px}.hero-evidence .gain{margin-top:23px}.presentation-bar{padding:13px 18px;gap:12px;position:relative}.presentation-dots{display:none}.page-controls{gap:12px}.text-button{font-size:12px}.page-controls button{padding:8px 12px}.case-pills{gap:7px}.case-pills button{font-size:11px;padding:8px 10px}.field>span{font-size:12px}.field>small{font-size:10px}.live-panel{display:grid;grid-template-columns:1fr;max-width:none}.risk-orbit{width:150px;height:150px}.risk-display{padding-top:0}.input-footer>span{max-width:155px;font-size:9px}.closing-strip{display:block}.closing-strip button{margin-top:18px;width:100%}.reality-number{font-size:56px}.chart-wrap{height:245px}.segmented{max-width:100%}.segmented button{font-size:12px;padding:8px 13px}.validation-grid .site-row small{font-size:11px}.micro{font-size:11px}.review-metrics strong{font-size:22px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.presenter-notes {
+  background: var(--paper);
+  border: 1px solid #cce4e0;
+  border-left: 3px solid var(--teal);
+  border-radius: 9px;
+  padding: 16px 18px 18px;
+}
+.presenter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+.presenter-header .text-button {
+  min-height: 36px;
+}
+.presenter-notes .presenter-time {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  margin: 0 0 10px;
+}
+.presenter-block-title {
+  margin-top: 14px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.presenter-step {
+  margin-top: 10px;
+}
+.presenter-notes .presenter-cue {
+  background: var(--teal-light);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: var(--teal-dark);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.presenter-cue strong {
+  display: inline-block;
+  margin-right: 0.6em;
+  font-size: inherit;
+}
+.presenter-notes .presenter-line {
+  color: var(--ink);
+  font-size: 16px;
+  margin-top: 8px;
+  max-width: 74ch;
+  line-height: 1.55;
+}
+
+.judge-qa {
+  margin-top: 24px;
+}
+.judge-qa h2 {
+  margin-bottom: 12px;
+}
+.judge-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 10px;
+}
+.judge-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+.judge-card[open] {
+  border-color: #85c2bd;
+}
+.judge-card summary {
+  min-height: 52px;
+  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  list-style: none;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.judge-card summary::-webkit-details-marker {
+  display: none;
+}
+.judge-card summary:hover,
+.judge-card[open] summary {
+  background: var(--teal-light);
+}
+.judge-card[open] summary {
+  border-radius: 8px 8px 0 0;
+}
+.judge-toggle {
+  position: relative;
+  flex: 0 0 18px;
+  height: 18px;
+  color: var(--teal-dark);
+}
+.judge-toggle::before,
+.judge-toggle::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 11px;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+  content: "";
+}
+.judge-toggle::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+.judge-card[open] .judge-toggle::after {
+  display: none;
+}
+.judge-card p {
+  padding: 13px 15px 16px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+@media (max-width: 720px) {
+  .judge-cards {
+    grid-template-columns: 1fr;
+  }
+}
+</style></head>
+<body>
+<a href="#main" class="skip" data-zh="跳到内容" data-en="Skip to content">跳到内容</a>
+<aside class="rail">
+  <a class="brand" href="#overview" aria-label="Sepsis Research"><span class="brand-symbol">s<span>24</span></span><span>SEPSIS<br><small>RESEARCH DEMO</small></span></a>
+  <p class="rail-caption" data-zh="从监测到复核" data-en="From data to review">从监测到复核</p>
+  <nav id="sceneNav" aria-label="路演场景">
+    <button data-scene="0" class="active"><span class="nav-index">01</span><span data-zh="临床问题" data-en="The clinical question">临床问题</span></button>
+    <button data-scene="1"><span class="nav-index">02</span><span data-zh="监测快照" data-en="The patient snapshot">监测快照</span></button>
+    <button data-scene="2"><span class="nav-index">03</span><span data-zh="警报与复核" data-en="Alerts and review">警报与复核</span></button>
+    <button data-scene="3"><span class="nav-index">04</span><span data-zh="队列证据" data-en="Cohort evidence">队列证据</span></button>
+    <button data-scene="4"><span class="nav-index">05</span><span data-zh="外部验证" data-en="External evaluation">外部验证</span></button>
+  </nav>
+  <div class="rail-bottom"><span class="model-label">AMSTERDAMUMCDB</span><p data-zh="固定时点研究模型" data-en="Fixed landmark research model">固定时点研究模型</p><a id="railGithub" target="_blank" rel="noreferrer">GitHub · 9143382</a></div>
+</aside>
+<div class="workspace">
+<header class="topbar"><div class="breadcrumb"><span data-zh="脓毒症风险研究" data-en="Sepsis risk research">脓毒症风险研究</span><span class="divider">/</span><span id="currentScene">临床问题</span></div><div class="tools"><span class="research-tag" data-zh="研究路演" data-en="Research demo">研究路演</span><button class="tool" id="language" aria-label="Switch language">EN</button><button class="tool fullscreen" id="fullscreen" data-zh="全屏" data-en="Full screen">全屏</button></div></header>
+<main id="main">
+<section class="scene" id="scene0" aria-labelledby="introTitle">
+  <div class="scene-intro"><p class="eyebrow">24-HOUR LANDMARK · 7-DAY OUTCOME</p><h1 id="introTitle" data-zh="疑似感染后的 24 小时评估" data-en="Risk assessment 24 hours after suspected infection">疑似感染后的 24 小时评估</h1><p class="lead" data-zh="当团队只能处理有限数量的警报，实测乳酸能否帮助识别更多随后死亡的患者？" data-en="When a team can act on a limited number of alerts, does measured lactate help flag more patients who subsequently die?">当团队只能处理有限数量的警报，实测乳酸能否帮助识别更多随后死亡的患者？</p></div>
+  <div class="overview-grid">
+    <article class="panel timeline-panel"><div class="section-head"><h2 data-zh="一次评估，一段明确的观察窗" data-en="One assessment and a defined horizon">一次评估，一段明确的观察窗</h2><span class="small-label" data-zh="研究设计" data-en="Study design">研究设计</span></div>
+      <div class="time-track"><div class="time-node"><span class="node"></span><strong>0 h</strong><p data-zh="疑似感染" data-en="Suspected infection">疑似感染</p></div><div class="time-window"><span data-zh="仅使用此前记录" data-en="Measurements before assessment">仅使用此前记录</span></div><div class="time-node assessment"><span class="node"></span><strong>24 h</strong><p data-zh="计算风险" data-en="Risk assessment">计算风险</p></div><div class="time-window future"><span data-zh="后续 7 天" data-en="Following 7 days">后续 7 天</span></div><div class="time-node end"><span class="node"></span><strong>192 h</strong><p data-zh="结局观察终点" data-en="End of follow-up">结局观察终点</p></div></div>
+      <div class="input-families"><div><span class="family-icon">O</span><strong data-zh="已观测器官功能" data-en="Observed organ function">已观测器官功能</strong><small data-zh="部分评分与观测数量" data-en="Partial sum and observed count">部分评分与观测数量</small></div><div><span class="family-icon">V</span><strong data-zh="生命体征" data-en="Vital signs">生命体征</strong><small>MAP · HR · RR</small></div><div class="accent-family"><span class="family-icon">L</span><strong data-zh="实测乳酸" data-en="Measured lactate">实测乳酸</strong><small data-zh="最近一个有效小时中位数" data-en="Latest observed hourly median">最近一个有效小时中位数</small></div></div>
+      <p class="micro" data-zh="评估对象在 24 小时时仍存活且仍在重症监护。结局为随后 7 天内记录的死亡。" data-en="The cohort is alive and in critical care at hour 24. The outcome is recorded death during the following seven days.">评估对象在 24 小时时仍存活且仍在重症监护。结局为随后 7 天内记录的死亡。</p>
+    </article>
+    <article class="panel hero-evidence"><span class="small-label" data-zh="同样 521 条警报" data-en="The same 521 alerts">同样 521 条警报</span><h2 data-zh="排序改变了哪些患者被标记" data-en="Ranking changes who receives an alert">排序改变了哪些患者被标记</h2><div class="comparison-mini"><div><span data-zh="器官功能 + 生命体征" data-en="Organ function + vital signs">器官功能 + 生命体征</span><div class="mini-track"><i style="width:72.22%"></i></div><strong>130</strong></div><div><span data-zh="加入实测乳酸" data-en="Add measured lactate">加入实测乳酸</span><div class="mini-track"><i class="teal" style="width:82.78%"></i></div><strong>149</strong></div></div><p class="gain"><strong>+19</strong><span data-zh="次随后死亡被标记" data-en="additional subsequent deaths flagged">次随后死亡被标记</span></p><p class="micro" data-zh="在 318 次可评分死亡中计算。检出率差 6.0 个百分点，95% CI 1.5–10.3。同院时间留出结果。" data-en="Among 318 deaths in scored admissions. Capture difference 6.0 percentage points, 95% CI 1.5–10.3. Same-hospital temporal evaluation.">在 318 次可评分死亡中计算。检出率差 6.0 个百分点，95% CI 1.5–10.3。同院时间留出结果。</p></article>
+  </div>
+  <div class="cohort-strip"><div><strong>2,642</strong><span data-zh="合格入科" data-en="Eligible admissions">合格入科</span></div><div><strong>2,608 <small>98.7%</small></strong><span data-zh="可生成风险评分" data-en="Admissions scored">可生成风险评分</span></div><div><strong>1,757</strong><span data-zh="评分实际使用实测乳酸" data-en="Scores using measured lactate">评分实际使用实测乳酸</span></div><button class="primary" id="startDemo" data-zh="进入病例演示" data-en="Explore a case">进入病例演示</button></div>
+</section>
+
+<section class="scene" id="scene1" hidden aria-labelledby="snapshotTitle">
+  <div class="scene-intro"><p class="eyebrow">SYNTHETIC CASE · LOCAL CALCULATION</p><h1 id="snapshotTitle" data-zh="让监测记录形成一张快照" data-en="Turn monitoring data into a snapshot">让监测记录形成一张快照</h1><p class="lead" data-zh="选择合成病例或调整输入，观察实测乳酸和数据缺失如何改变评分路径。" data-en="Select a synthetic case or adjust the inputs to explore lactate and missing-data routing.">选择合成病例或调整输入，观察实测乳酸和数据缺失如何改变评分路径。</p></div>
+  <div class="case-pills" id="casePills"><button data-case="high" class="selected" data-zh="乳酸升高" data-en="Elevated lactate">乳酸升高</button><button data-case="missing" data-zh="乳酸缺失" data-en="Missing lactate">乳酸缺失</button><button data-case="organ" data-zh="仅器官资料" data-en="Organ data only">仅器官资料</button><button data-case="insufficient" data-zh="器官观测不足" data-en="Insufficient organ data">器官观测不足</button><button data-case="lower" data-zh="未达优先阈值" data-en="Below priority cutoff">未达优先阈值</button><button data-case="unknownAge" data-zh="年龄未知" data-en="Age unavailable">年龄未知</button></div>
+  <div class="snapshot-grid"><article class="panel input-panel"><div class="section-head"><h2 data-zh="24 小时监测快照" data-en="The 24-hour snapshot">24 小时监测快照</h2><span class="small-label" data-zh="合成病例" data-en="Synthetic case">合成病例</span></div><div class="fields" id="inputFields">
+    <label class="field"><span data-zh="已观测器官评分之和" data-en="Sum of observed organ scores">已观测器官评分之和</span><div class="input-wrap"><input id="sofa_observed" type="number" step="1" min="0" max="24" value="8"><span data-zh="分" data-en="points">分</span></div><small data-zh="此前 0–23 h，各器官最差已观测值" data-en="Worst observed component values in hours 0–23">此前 0–23 h，各器官最差已观测值</small></label>
+    <label class="field"><span data-zh="已观测器官数量" data-en="Observed organ components">已观测器官数量</span><select id="sofa_components"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option selected>5</option><option>6</option></select><small data-zh="至少 2 项才支持评分" data-en="At least 2 components are required">至少 2 项才支持评分</small></label>
+    <label class="field"><span data-zh="平均动脉压 MAP" data-en="Mean arterial pressure">平均动脉压 MAP</span><div class="input-wrap"><input id="map_median" type="number" min="20" max="180" step="1" value="66"><span>mmHg</span></div><small data-zh="18–23 h 小时值中位数，至少 2 h" data-en="Median in hours 18–23, ≥2 observed bins">18–23 h 小时值中位数，至少 2 h</small></label>
+    <label class="field"><span data-zh="心率 HR" data-en="Heart rate">心率 HR</span><div class="input-wrap"><input id="hr_median" type="number" min="20" max="300" step="1" value="116"><span>/min</span></div><small data-zh="18–23 h 小时值中位数，至少 2 h" data-en="Median in hours 18–23, ≥2 observed bins">18–23 h 小时值中位数，至少 2 h</small></label>
+    <label class="field"><span data-zh="呼吸频率 RR" data-en="Respiratory rate">呼吸频率 RR</span><div class="input-wrap"><input id="rr_median" type="number" min="3" max="100" step="1" value="29"><span>/min</span></div><small data-zh="18–23 h 小时值中位数，至少 2 h" data-en="Median in hours 18–23, ≥2 observed bins">18–23 h 小时值中位数，至少 2 h</small></label>
+    <label class="field lactate-field"><span data-zh="实测乳酸" data-en="Measured lactate">实测乳酸</span><div class="input-wrap"><input id="lactate_latest" type="number" min="0.1" max="40" step="0.1" value="4.2"><span>mmol/L</span></div><small data-zh="12–23 h 最近一个小时中位数" data-en="Latest hourly median in hours 12–23">12–23 h 最近一个小时中位数</small></label>
+    <label class="field"><span data-zh="年龄组" data-en="Age band">年龄组</span><select id="age_group"><option value="" data-zh="未知" data-en="Unknown">未知</option><option>18-39</option><option>40-49</option><option>50-59</option><option selected>60-69</option><option>70-79</option><option>80+</option></select><small data-zh="仅供探索性年龄复核模型使用" data-en="Used by the exploratory age review model">仅供探索性年龄复核模型使用</small></label>
+    <label class="field"><span data-zh="从疑似感染起算" data-en="Time since suspected infection">从疑似感染起算</span><select id="snapshot_hour"><option value="24" selected data-zh="24 h 固定评估点" data-en="24 h assessment">24 h 固定评估点</option><option value="12" data-zh="12 h 其他时间点" data-en="12 h other timepoint">12 h 其他时间点</option><option value="48" data-zh="48 h 其他时间点" data-en="48 h other timepoint">48 h 其他时间点</option></select><small data-zh="输入时间窗需与评估点一致" data-en="Input windows must match the assessment">输入时间窗需与评估点一致</small></label>
+  </div><div class="input-footer"><button class="text-button" id="toggleLactate" data-zh="演示乳酸缺失" data-en="Remove lactate">演示乳酸缺失</button><span data-zh="空白视为未知，输入仅在浏览器计算。" data-en="Blank means unknown. Inputs stay in your browser.">空白视为未知，输入仅在浏览器计算。</span></div></article>
+  <article class="panel live-panel"><div class="section-head"><h2 data-zh="实时风险输出" data-en="Live model output">实时风险输出</h2><span class="live-badge" data-zh="固定参数" data-en="Frozen parameters">固定参数</span></div><div class="risk-display"><div class="risk-orbit"><span id="riskValue" aria-live="polite">31.6<span>%</span></span></div><p data-zh="随后 7 天记录死亡的估计风险" data-en="Estimated risk of recorded death in the following 7 days">随后 7 天记录死亡的估计风险</p></div><div id="snapshotState" class="state-banner urgent"></div><div class="route-stack" id="routes"></div><p id="inputMessage" class="micro"></p><button class="primary full-button" id="toDecision" data-zh="查看警报与复核路径" data-en="See the alert and review route">查看警报与复核路径</button></article></div>
+</section>
+
+<section class="scene" id="scene2" hidden aria-labelledby="decisionTitle">
+  <div class="scene-intro"><p class="eyebrow">FROZEN CUTOFF · EXPLORATORY REVIEW</p><h1 id="decisionTitle" data-zh="从风险评分到复核队列" data-en="From risk estimate to review queue">从风险评分到复核队列</h1><p class="lead" data-zh="原优先警报由固定风险阈值触发。可选的第二层按年龄模型和早期参考队列阈值安排额外复核。" data-en="A frozen risk cutoff triggers the original priority alerts. An optional second tier uses age-adjusted risk and a cutoff set in the earlier reference cohort.">原优先警报由固定风险阈值触发。可选的第二层按年龄模型和早期参考队列阈值安排额外复核。</p></div>
+  <div class="decision-grid"><article class="panel decision-summary"><span class="small-label" data-zh="当前合成病例" data-en="Current synthetic case">当前合成病例</span><h2 id="decisionState"></h2><p id="decisionDescription" class="lead-small"></p><div class="decision-risk"><strong id="decisionRisk"></strong><span data-zh="固定模型估计风险" data-en="Frozen model risk estimate">固定模型估计风险</span></div><label class="field"><span data-zh="第二层复核设置" data-en="Second review tier">第二层复核设置</span><select id="reviewTarget"><option value="0" data-zh="仅原优先警报" data-en="Original priority alerts only">仅原优先警报</option><option value="0.9" data-zh="早期参考队列 90% 目标" data-en="90% earlier-reference capture target">早期参考队列 90% 目标</option><option value="0.95" data-zh="早期参考队列 95% 目标" data-en="95% earlier-reference capture target">早期参考队列 95% 目标</option><option value="1.0" selected data-zh="早期参考队列 100% 目标" data-en="100% earlier-reference capture target">早期参考队列 100% 目标</option></select></label><button class="text-button" id="editSnapshot" data-zh="调整监测快照" data-en="Edit the snapshot">调整监测快照</button></article>
+  <article class="panel pathway-panel"><h2 data-zh="可核对的分层逻辑" data-en="A traceable routing pathway">可核对的分层逻辑</h2><div id="pathway" class="pathway"></div><div class="review-metrics" id="reviewMetrics"></div><p class="micro" data-zh="队列中的“覆盖”指分配到警报或复核名单。临床行动和患者获益需要前瞻性评估。" data-en="Cohort capture means assignment to an alert or review list. Clinical action and patient benefit need prospective evaluation.">队列中的“覆盖”指分配到警报或复核名单。临床行动和患者获益需要前瞻性评估。</p></article></div>
+</section>
+
+<section class="scene" id="scene3" hidden aria-labelledby="evidenceTitle">
+  <div class="scene-intro"><p class="eyebrow">AMSTERDAMUMCDB · 2010–2016</p><h1 id="evidenceTitle" data-zh="检出多少，也看需要多少工作" data-en="Count the events and the workload">检出多少，也看需要多少工作</h1><p class="lead" data-zh="在同一批病例上比较排序，也查看固定阈值和追加复核的实际工作量。" data-en="Compare ranking on the same admissions, then inspect the workload of the fixed alert and review policy.">在同一批病例上比较排序，也查看固定阈值和追加复核的实际工作量。</p></div>
+  <div class="segmented" id="evidenceMode"><button class="selected" data-mode="ranking" data-zh="相同警报量" data-en="Matched alert volume">相同警报量</button><button data-mode="fixed" data-zh="固定阈值与复核" data-en="Fixed alerts and review">固定阈值与复核</button></div>
+  <div id="rankingView"><div class="ranking-grid"><article class="panel chart-panel"><div class="section-head"><h2 data-zh="警报容量与死亡检出" data-en="Alert capacity and death capture">警报容量与死亡检出</h2><span class="small-label" data-zh="回顾性排序" data-en="Retrospective ranking">回顾性排序</span></div><div class="chart-wrap"><canvas id="capacityChart" aria-label="Alert capacity versus recorded death capture" role="img"></canvas></div><div class="chart-legend"><span class="legend-dot organ" data-zh="器官功能" data-en="Organ function">器官功能</span><span class="legend-dot vitals" data-zh="加生命体征" data-en="Add vital signs">加生命体征</span><span class="legend-dot lactate" data-zh="加实测乳酸" data-en="Add measured lactate">加实测乳酸</span></div><label class="capacity-control"><span><span data-zh="警报容量" data-en="Alert capacity">警报容量</span><strong id="budgetLabel">20%</strong></span><input type="range" id="budget" min="5" max="100" step="5" value="20"><small data-zh="占 2,608 次共同可评分入科的比例" data-en="Share of the 2,608 commonly scored admissions">占 2,608 次共同可评分入科的比例</small></label></article><article class="panel ranking-results"><span class="small-label" data-zh="相同分母，相同警报数量" data-en="Same cohort and alert count">相同分母，相同警报数量</span><h2><span id="slots">521</span> <span data-zh="条警报 / 每个策略" data-en="alerts per strategy">条警报 / 每个策略</span></h2><div id="rankingRows"></div><p class="delta-callout" id="rankingGain"></p><div class="known-interval" id="capacityNote"></div><p class="micro" data-zh="以 318 次可评分死亡为分母。边界并列评分按比例分配名额，因此计数可为小数。" data-en="Denominator is 318 deaths in scored admissions. Tied scores at the boundary share slots fractionally.">以 318 次可评分死亡为分母。边界并列评分按比例分配名额，因此计数可为小数。</p></article></div></div>
+  <div id="fixedView" hidden><div class="fixed-layout"><article class="panel"><div class="section-head"><h2 data-zh="2,642 次合格入科中的工作量" data-en="Workload across 2,642 eligible admissions">2,642 次合格入科中的工作量</h2></div><div id="fixedRows"></div><div class="chart-legend"><span class="legend-dot lactate" data-zh="优先警报" data-en="Priority alert">优先警报</span><span class="legend-dot light" data-zh="额外复核" data-en="Additional review">额外复核</span></div><p class="micro" data-zh="固定阈值来自早期校准集，后来队列的警报量达到 44.7%。追加复核使用探索性年龄模型。" data-en="The cutoff came from the earlier calibration set. Alerts reached 44.7% in the later cohort. The additional tier uses the exploratory age model.">固定阈值来自早期校准集，后来队列的警报量达到 44.7%。追加复核使用探索性年龄模型。</p></article><article class="panel reality-panel"><span class="small-label" data-zh="提高覆盖的代价" data-en="The workload of higher capture">提高覆盖的代价</span><strong class="reality-number">97.8<span>%</span></strong><h2 data-zh="入科被列入警报或复核名单" data-en="of admissions assigned to alert or review">入科被列入警报或复核名单</h2><p data-zh="覆盖 319/324 次死亡，仍有 5 次未被标记。额外复核 1,402 次。" data-en="319 of 324 deaths captured, with 5 unflagged. 1,402 additional reviews.">覆盖 319/324 次死亡，仍有 5 次未被标记。额外复核 1,402 次。</p><button class="text-button" id="toValidation" data-zh="查看外部验证计划" data-en="See the external evaluation plan">查看外部验证计划</button></article></div></div>
+</section>
+
+<section class="scene" id="scene4" hidden aria-labelledby="validationTitle">
+  <div class="scene-intro"><p class="eyebrow">REPRODUCIBILITY · NEXT EVALUATION</p><h1 id="validationTitle" data-zh="把同一问题交给下一家医院" data-en="Take the same question to the next hospital">把同一问题交给下一家医院</h1><p class="lead" data-zh="冻结模型和输入定义，由外院在本地运行，回传汇总结果。" data-en="Freeze the model and input definitions. Another hospital runs the evaluation locally and returns aggregate results.">冻结模型和输入定义，由外院在本地运行，回传汇总结果。</p></div>
+  <div class="validation-grid"><article class="panel"><h2 data-zh="当前证据与数据准备" data-en="Evidence and data readiness">当前证据与数据准备</h2><div class="site-row"><div><strong>AmsterdamUMCdb</strong><small data-zh="2,642 次入科 · 同院时间留出" data-en="2,642 admissions · temporal evaluation">2,642 次入科 · 同院时间留出</small></div><span class="site-status ready" data-zh="已复跑" data-en="Reproduced">已复跑</span></div><div class="site-row"><div><strong>eICU</strong><small data-zh="需对齐感染时点、器官观测和结局随访" data-en="Align infection time, observed organs and follow-up">需对齐感染时点、器官观测和结局随访</small></div><span class="site-status" data-zh="数据审计" data-en="Data audit">数据审计</span></div><div class="site-row"><div><strong>MIMIC-IV</strong><small data-zh="需核实工作簿格点与原始测量时间" data-en="Verify workbook grid and measurement timestamps">需核实工作簿格点与原始测量时间</small></div><span class="site-status" data-zh="数据审计" data-en="Data audit">数据审计</span></div><div class="site-row"><div><strong data-zh="瑞金医院" data-en="Ruijin Hospital">瑞金医院</strong><small data-zh="需补齐乳酸、24 h 输入并核对结局" data-en="Add lactate and 24 h inputs, reconcile outcomes">需补齐乳酸、24 h 输入并核对结局</small></div><span class="site-status" data-zh="数据审计" data-en="Data audit">数据审计</span></div><p class="micro" data-zh="独立外部验证待完成。现有其他来源支持字段与结局的可用性审计。" data-en="Independent external validation is pending. The other sources currently support input and outcome availability audits.">独立外部验证待完成。现有其他来源支持字段与结局的可用性审计。</p></article><article class="panel repo-panel"><h2 data-zh="可复现的验证入口" data-en="A reproducible evaluation entry point">可复现的验证入口</h2><p class="repo-title">ccmzhangrui / sepsis-llm</p><p data-zh="24 小时快照、固定模型、7 天结局定义、按患者聚类的配对比较。" data-en="A 24-hour snapshot, frozen models, seven-day endpoints and paired patient-clustered comparisons.">24 小时快照、固定模型、7 天结局定义、按患者聚类的配对比较。</p><a class="primary repo-link" id="repoLink" target="_blank" rel="noreferrer" data-zh="打开模型与运行说明" data-en="Open model and instructions">打开模型与运行说明</a><button class="text-button" id="copyUrl" data-zh="复制完整网址" data-en="Copy full URL">复制完整网址</button><details><summary data-zh="模型与研究方法" data-en="Model and methods">模型与研究方法</summary><p data-zh="当前推断为带正则化的逻辑回归，配有独立早期样本的概率校准。年龄扩展和复核策略为探索性分析。页面逐项重现已发布 Python 的推断与回退逻辑。" data-en="Inference uses regularized logistic regression with probability calibration in a separate earlier sample. The age extension and review policy are exploratory. This demo reproduces the published Python scoring and fallback logic.">当前推断为带正则化的逻辑回归，配有独立早期样本的概率校准。年龄扩展和复核策略为探索性分析。页面逐项重现已发布 Python 的推断与回退逻辑。</p><code id="fullUrl"></code></details></article></div>
+  <section class="judge-qa" aria-labelledby="judgeTitle">
+    <h2 id="judgeTitle" data-zh="英文评委问答" data-en="Judge Q&amp;A">英文评委问答</h2>
+    <div class="judge-cards" lang="en">
+      <details class="judge-card">
+        <summary>Why did you flag 19 more deaths with the same 521 alerts?<span class="judge-toggle" aria-hidden="true"></span></summary>
+        <p>Adding measured lactate changed who ranked in the top 521. On the same scored admissions, the model with lactate flagged <strong>149 of 318 deaths</strong>, compared with <strong>130</strong> using organ function and vital signs alone. That’s a <strong>net gain of 19</strong>, or six percentage points.</p>
+      </details>
+      <details class="judge-card">
+        <summary>Why did 169 deaths still go unflagged?<span class="judge-toggle" aria-hidden="true"></span></summary>
+        <p>Those patients ranked below the cutoff for 521 alerts. At that workload, the model flagged about <strong>47 percent</strong> of deaths among scored admissions. We’d review the missed cases to understand what the model could and couldn’t see at 24 hours.</p>
+      </details>
+      <details class="judge-card">
+        <summary>Were 1,402 additional reviews worth it?<span class="judge-toggle" aria-hidden="true"></span></summary>
+        <p>The second tier flagged <strong>97 more deaths</strong>, at roughly <strong>14 to 15 extra reviews per additional death flagged</strong>. It put 97.8 percent of eligible admissions on an alert or review list and still missed five deaths. I’d use that as a benchmark and test a smaller queue before routine use.</p>
+      </details>
+      <details class="judge-card">
+        <summary>How would you validate the model externally?<span class="judge-toggle" aria-hidden="true"></span></summary>
+        <p>We’d test the frozen model in an independent ICU cohort using the same 24-hour assessment and seven-day outcome. We’d agree on the alert budget in advance, compare the models with and without lactate, and report scoring coverage, calibration, missed deaths, and review workload.</p>
+      </details>
+    </div>
+  </section>
+  <div class="closing-strip"><div><h2 data-zh="下一次评估同时回答两个问题" data-en="The next evaluation asks both questions">下一次评估同时回答两个问题</h2><p data-zh="同样工作量能否减少漏报？扩大覆盖需要多少额外复核？" data-en="Can the same workload reduce missed deaths? How many extra reviews would higher capture require?">同样工作量能否减少漏报？扩大覆盖需要多少额外复核？</p></div><button id="restart" class="secondary" data-zh="重新路演" data-en="Restart presentation">重新路演</button></div>
+</section>
+<section class="presenter-notes" id="presenterNotes" aria-labelledby="presenterTitle" hidden>
+  <div class="presenter-header">
+    <h2 id="presenterTitle" data-zh="讲述提示" data-en="Presenter notes">讲述提示</h2>
+    <button class="text-button" id="closeNotes" data-zh="收起" data-en="Collapse">收起</button>
+  </div>
+  <p id="presenterTime" class="presenter-time"></p>
+  <div id="presenterScript" lang="en"></div>
+</section>
+</main>
+<footer class="presentation-bar"><button class="text-button" id="notesToggle" aria-expanded="false" aria-controls="presenterNotes" data-zh="讲述提示" data-en="Presenter notes">讲述提示</button><div class="presentation-dots" id="sceneDots"></div><div class="page-controls"><button id="previous" class="secondary" data-zh="上一幕" data-en="Previous">上一幕</button><span id="stepNumber">1 / 5</span><button id="next" class="primary" data-zh="下一幕" data-en="Next">下一幕</button></div></footer>
+</div><div id="toast" role="status" class="toast" hidden></div>
+<script>const DEMO_DATA = {
+  "revision": "9143382e96f925b3831e3ebfbec589df43713719",
+  "github": "https://github.com/ccmzhangrui/sepsis-llm/tree/9143382e96f925b3831e3ebfbec589df43713719/sepsis_reproducibility/early_alert",
+  "baseline": {
+    "schema": "suspected_infection_24h_7d_mortality_v1",
+    "alert_budget_in_development": 0.2,
+    "fit_era": "2003-2009",
+    "primary_comparator": "organ",
+    "components": {
+      "organ": {
+        "fit_stays": 686,
+        "fit_events": 81,
+        "coefficients": {
+          "sofa_observed": 0.12843298102579898,
+          "sofa_components": 0.1363790512360168
+        },
+        "intercept": -3.1657601752008038
+      },
+      "vitals": {
+        "fit_stays": 670,
+        "fit_events": 80,
+        "coefficients": {
+          "sofa_observed": 0.11420621905432408,
+          "sofa_components": 0.1583948085715051,
+          "map_median": -0.031546117365916414,
+          "hr_median": -0.016987456777182105,
+          "rr_median": 0.04888822732853955
+        },
+        "intercept": -0.15167077799047668
+      },
+      "lactate": {
+        "fit_stays": 197,
+        "fit_events": 42,
+        "coefficients": {
+          "sofa_observed": -0.0011020726194709747,
+          "sofa_components": 0.17703358277192946,
+          "map_median": -0.026829355741536477,
+          "hr_median": -0.006667732775619952,
+          "rr_median": 0.021786949479501008,
+          "lactate_latest": 0.24076373515796856
+        },
+        "intercept": -0.44778441171838657
+      }
+    },
+    "policies": {
+      "organ": {
+        "intercept": 0.6092924558306883,
+        "slope": 1.502194642243039,
+        "threshold": 0.14242295288579562,
+        "calibration_scored": 303,
+        "calibration_alerts": 58
+      },
+      "vitals": {
+        "intercept": -0.3789515432996248,
+        "slope": 0.9828987943556893,
+        "threshold": 0.13644995401010623,
+        "calibration_scored": 303,
+        "calibration_alerts": 60
+      },
+      "lactate": {
+        "intercept": -0.20862265438349667,
+        "slope": 1.190437116675309,
+        "threshold": 0.13103615554305645,
+        "calibration_scored": 303,
+        "calibration_alerts": 60
+      }
+    }
+  },
+  "ageModel": {
+    "schema": "suspected_infection_24h_7d_mortality_v1",
+    "alert_budget_in_development": 0.2,
+    "fit_era": "2003-2009",
+    "primary_comparator": "organ",
+    "components": {
+      "organ": {
+        "fit_stays": 686,
+        "fit_events": 81,
+        "coefficients": {
+          "sofa_observed": 0.12573296027946343,
+          "sofa_components": 0.16150642381629995,
+          "age_midpoint": 0.015453623245274958
+        },
+        "intercept": -4.205618520695268
+      },
+      "vitals": {
+        "fit_stays": 670,
+        "fit_events": 80,
+        "coefficients": {
+          "sofa_observed": 0.11136803974999887,
+          "sofa_components": 0.17720577364026002,
+          "map_median": -0.030009664445928185,
+          "hr_median": -0.0163768336119884,
+          "rr_median": 0.04887120783251523,
+          "age_midpoint": 0.01033207073679344
+        },
+        "intercept": -1.0245959356378975
+      },
+      "lactate": {
+        "fit_stays": 197,
+        "fit_events": 42,
+        "coefficients": {
+          "sofa_observed": -0.00796042109654571,
+          "sofa_components": 0.21389629000960955,
+          "map_median": -0.02535863856711693,
+          "hr_median": -0.00532423388830625,
+          "rr_median": 0.023805183539981244,
+          "lactate_latest": 0.24324291964488093,
+          "age_midpoint": 0.013375367107597643
+        },
+        "intercept": -1.6459479143089526
+      }
+    },
+    "policies": {
+      "organ": {
+        "intercept": 0.3875151217994547,
+        "slope": 1.372194509846911,
+        "threshold": 0.13216418602886307,
+        "calibration_scored": 303,
+        "calibration_alerts": 59
+      },
+      "vitals": {
+        "intercept": -0.39723523281634576,
+        "slope": 0.9656944910055505,
+        "threshold": 0.13527585274143364,
+        "calibration_scored": 303,
+        "calibration_alerts": 60
+      },
+      "lactate": {
+        "intercept": -0.21368452827975373,
+        "slope": 1.1825794393226554,
+        "threshold": 0.13553106392265724,
+        "calibration_scored": 303,
+        "calibration_alerts": 60
+      }
+    },
+    "additional_features": [
+      "age_midpoint"
+    ]
+  },
+  "curves": [
+    {
+      "budget": 5,
+      "slots": 130,
+      "captured": {
+        "organ": 51.23684210526315,
+        "vitals": 54.0,
+        "lactate": 55.0
+      }
+    },
+    {
+      "budget": 10,
+      "slots": 260,
+      "captured": {
+        "organ": 76.0,
+        "vitals": 78.0,
+        "lactate": 101.0
+      }
+    },
+    {
+      "budget": 15,
+      "slots": 391,
+      "captured": {
+        "organ": 97.66666666666666,
+        "vitals": 110.0,
+        "lactate": 126.0
+      }
+    },
+    {
+      "budget": 20,
+      "slots": 521,
+      "captured": {
+        "organ": 116.8,
+        "vitals": 130.0,
+        "lactate": 149.0
+      }
+    },
+    {
+      "budget": 25,
+      "slots": 652,
+      "captured": {
+        "organ": 138.26315789473685,
+        "vitals": 146.0,
+        "lactate": 166.0
+      }
+    },
+    {
+      "budget": 30,
+      "slots": 782,
+      "captured": {
+        "organ": 148.96850393700788,
+        "vitals": 161.0,
+        "lactate": 180.0
+      }
+    },
+    {
+      "budget": 35,
+      "slots": 912,
+      "captured": {
+        "organ": 163.79611650485438,
+        "vitals": 187.0,
+        "lactate": 189.0
+      }
+    },
+    {
+      "budget": 40,
+      "slots": 1043,
+      "captured": {
+        "organ": 174.86842105263156,
+        "vitals": 200.0,
+        "lactate": 205.0
+      }
+    },
+    {
+      "budget": 45,
+      "slots": 1173,
+      "captured": {
+        "organ": 190.5128205128205,
+        "vitals": 213.0,
+        "lactate": 220.0
+      }
+    },
+    {
+      "budget": 50,
+      "slots": 1304,
+      "captured": {
+        "organ": 198.32075471698113,
+        "vitals": 227.0,
+        "lactate": 234.0
+      }
+    },
+    {
+      "budget": 55,
+      "slots": 1434,
+      "captured": {
+        "organ": 215.49056603773585,
+        "vitals": 237.0,
+        "lactate": 241.0
+      }
+    },
+    {
+      "budget": 60,
+      "slots": 1564,
+      "captured": {
+        "organ": 232.47619047619045,
+        "vitals": 250.0,
+        "lactate": 255.0
+      }
+    },
+    {
+      "budget": 65,
+      "slots": 1695,
+      "captured": {
+        "organ": 238.93150684931507,
+        "vitals": 257.0,
+        "lactate": 263.0
+      }
+    },
+    {
+      "budget": 70,
+      "slots": 1825,
+      "captured": {
+        "organ": 253.3805309734513,
+        "vitals": 268.0,
+        "lactate": 273.0
+      }
+    },
+    {
+      "budget": 75,
+      "slots": 1956,
+      "captured": {
+        "organ": 267.54237288135596,
+        "vitals": 275.0,
+        "lactate": 286.0
+      }
+    },
+    {
+      "budget": 80,
+      "slots": 2086,
+      "captured": {
+        "organ": 277.8426966292135,
+        "vitals": 283.0,
+        "lactate": 293.0
+      }
+    },
+    {
+      "budget": 85,
+      "slots": 2216,
+      "captured": {
+        "organ": 293.91011235955057,
+        "vitals": 297.0,
+        "lactate": 300.0
+      }
+    },
+    {
+      "budget": 90,
+      "slots": 2347,
+      "captured": {
+        "organ": 302.1463414634146,
+        "vitals": 300.0,
+        "lactate": 306.0
+      }
+    },
+    {
+      "budget": 95,
+      "slots": 2477,
+      "captured": {
+        "organ": 309.1428571428571,
+        "vitals": 310.0,
+        "lactate": 309.0
+      }
+    },
+    {
+      "budget": 100,
+      "slots": 2608,
+      "captured": {
+        "organ": 318.0,
+        "vitals": 318.0,
+        "lactate": 318.0
+      }
+    }
+  ],
+  "matched": {
+    "design": "Retrospective ranking on the same scored stays with known outcomes",
+    "fraction_of_common_scored_stays": 0.2,
+    "common_scored_known": 2608,
+    "events": 318,
+    "slots_per_policy": 521,
+    "policies": {
+      "organ": {
+        "expected_deaths_with_alert": 116.8,
+        "sensitivity_common_scored": 0.3672955974842767,
+        "ppv": 0.22418426103646832
+      },
+      "vitals": {
+        "expected_deaths_with_alert": 130.0,
+        "sensitivity_common_scored": 0.4088050314465409,
+        "ppv": 0.2495201535508637
+      },
+      "lactate": {
+        "expected_deaths_with_alert": 149.0,
+        "sensitivity_common_scored": 0.46855345911949686,
+        "ppv": 0.28598848368522073
+      }
+    },
+    "comparisons": {
+      "vitals_vs_organ": {
+        "difference_in_expected_captured_deaths": 13.200000000000003,
+        "capture_difference_pct_points": 4.150943396226416,
+        "paired_cluster_bootstrap_95_ci_pct_points": [
+          -0.604065292490457,
+          8.799078819260526
+        ]
+      },
+      "lactate_vs_vitals": {
+        "difference_in_expected_captured_deaths": 19.0,
+        "capture_difference_pct_points": 5.9748427672955975,
+        "paired_cluster_bootstrap_95_ci_pct_points": [
+          1.5289354441709555,
+          10.279191995947315
+        ]
+      },
+      "lactate_vs_organ": {
+        "difference_in_expected_captured_deaths": 32.2,
+        "capture_difference_pct_points": 10.125786163522013,
+        "paired_cluster_bootstrap_95_ci_pct_points": [
+          4.0990943549378835,
+          15.336969586596247
+        ]
+      }
+    }
+  },
+  "cohort": {
+    "eligible": 2642,
+    "patients": 2406,
+    "scored": 2608,
+    "routes": {
+      "lactate": 1757,
+      "vitals": 752,
+      "organ": 99,
+      "indeterminate": 34
+    },
+    "deaths": 324,
+    "scoredDeaths": 318
+  },
+  "frozen": {
+    "urgent_alerts": 1182,
+    "secondary_review_risk": 0,
+    "secondary_review_unscored": 0,
+    "additional_review_for_full_coverage": 0,
+    "any_alert_or_review": 1182,
+    "per_100_stays_alert_or_review": 44.738834216502646,
+    "known_7d_deaths": 324,
+    "7d_deaths_urgent": 222,
+    "7d_deaths_secondary_risk": 0,
+    "7d_deaths_secondary_unscored": 0,
+    "7d_deaths_additional_review_for_full_coverage": 0,
+    "7d_deaths_missed": 102,
+    "7d_deaths_all_tiers_capture": 0.6851851851851852,
+    "72h_deaths_missed": 59,
+    "known_label_7d_ppv_all_tiers": 0.18781725888324874,
+    "unlabelled_stays": 0
+  },
+  "reviewPolicies": {
+    "0.9": {
+      "cutoff": 0.03713633633669951,
+      "reference": {
+        "urgent_alerts": 60,
+        "secondary_review_risk": 169,
+        "secondary_review_unscored": 8,
+        "additional_review_for_full_coverage": 0,
+        "any_alert_or_review": 237,
+        "per_100_stays_alert_or_review": 76.20578778135048,
+        "known_7d_deaths": 31,
+        "7d_deaths_urgent": 17,
+        "7d_deaths_secondary_risk": 9,
+        "7d_deaths_secondary_unscored": 2,
+        "7d_deaths_additional_review_for_full_coverage": 0,
+        "7d_deaths_missed": 3,
+        "7d_deaths_all_tiers_capture": 0.9032258064516129,
+        "72h_deaths_missed": 2,
+        "known_label_7d_ppv_all_tiers": 0.11814345991561181,
+        "unlabelled_stays": 0
+      },
+      "later_evaluation": {
+        "urgent_alerts": 1182,
+        "secondary_review_risk": 1219,
+        "secondary_review_unscored": 34,
+        "additional_review_for_full_coverage": 0,
+        "any_alert_or_review": 2435,
+        "per_100_stays_alert_or_review": 92.16502649507949,
+        "known_7d_deaths": 324,
+        "7d_deaths_urgent": 222,
+        "7d_deaths_secondary_risk": 86,
+        "7d_deaths_secondary_unscored": 6,
+        "7d_deaths_additional_review_for_full_coverage": 0,
+        "7d_deaths_missed": 10,
+        "7d_deaths_all_tiers_capture": 0.9691358024691358,
+        "72h_deaths_missed": 6,
+        "known_label_7d_ppv_all_tiers": 0.12895277207392197,
+        "unlabelled_stays": 0
+      }
+    },
+    "0.95": {
+      "cutoff": 0.022457116577662747,
+      "reference": {
+        "urgent_alerts": 60,
+        "secondary_review_risk": 213,
+        "secondary_review_unscored": 8,
+        "additional_review_for_full_coverage": 0,
+        "any_alert_or_review": 281,
+        "per_100_stays_alert_or_review": 90.35369774919614,
+        "known_7d_deaths": 31,
+        "7d_deaths_urgent": 17,
+        "7d_deaths_secondary_risk": 11,
+        "7d_deaths_secondary_unscored": 2,
+        "7d_deaths_additional_review_for_full_coverage": 0,
+        "7d_deaths_missed": 1,
+        "7d_deaths_all_tiers_capture": 0.967741935483871,
+        "72h_deaths_missed": 1,
+        "known_label_7d_ppv_all_tiers": 0.10676156583629894,
+        "unlabelled_stays": 0
+      },
+      "later_evaluation": {
+        "urgent_alerts": 1182,
+        "secondary_review_risk": 1340,
+        "secondary_review_unscored": 34,
+        "additional_review_for_full_coverage": 0,
+        "any_alert_or_review": 2556,
+        "per_100_stays_alert_or_review": 96.7448902346707,
+        "known_7d_deaths": 324,
+        "7d_deaths_urgent": 222,
+        "7d_deaths_secondary_risk": 90,
+        "7d_deaths_secondary_unscored": 6,
+        "7d_deaths_additional_review_for_full_coverage": 0,
+        "7d_deaths_missed": 6,
+        "7d_deaths_all_tiers_capture": 0.9814814814814815,
+        "72h_deaths_missed": 2,
+        "known_label_7d_ppv_all_tiers": 0.12441314553990611,
+        "unlabelled_stays": 0
+      }
+    },
+    "1.0": {
+      "cutoff": 0.01795428459970451,
+      "reference": {
+        "urgent_alerts": 60,
+        "secondary_review_risk": 223,
+        "secondary_review_unscored": 8,
+        "additional_review_for_full_coverage": 0,
+        "any_alert_or_review": 291,
+        "per_100_stays_alert_or_review": 93.56913183279742,
+        "known_7d_deaths": 31,
+        "7d_deaths_urgent": 17,
+        "7d_deaths_secondary_risk": 12,
+        "7d_deaths_secondary_unscored": 2,
+        "7d_deaths_additional_review_for_full_coverage": 0,
+        "7d_deaths_missed": 0,
+        "7d_deaths_all_tiers_capture": 1.0,
+        "72h_deaths_missed": 0,
+        "known_label_7d_ppv_all_tiers": 0.10652920962199312,
+        "unlabelled_stays": 0
+      },
+      "later_evaluation": {
+        "urgent_alerts": 1182,
+        "secondary_review_risk": 1368,
+        "secondary_review_unscored": 34,
+        "additional_review_for_full_coverage": 0,
+        "any_alert_or_review": 2584,
+        "per_100_stays_alert_or_review": 97.80469341408025,
+        "known_7d_deaths": 324,
+        "7d_deaths_urgent": 222,
+        "7d_deaths_secondary_risk": 91,
+        "7d_deaths_secondary_unscored": 6,
+        "7d_deaths_additional_review_for_full_coverage": 0,
+        "7d_deaths_missed": 5,
+        "7d_deaths_all_tiers_capture": 0.9845679012345679,
+        "72h_deaths_missed": 2,
+        "known_label_7d_ppv_all_tiers": 0.12345201238390092,
+        "unlabelled_stays": 0
+      }
+    }
+  },
+  "performance": {
+    "organ": {
+      "known_endpoints": 2642,
+      "events": 324,
+      "scored_known": 2608,
+      "events_in_scored": 318,
+      "events_in_indeterminate": 6,
+      "recorded_deaths_with_alert": 104,
+      "alerts_with_known_endpoint": 429,
+      "ppv": 0.24242424242424243,
+      "event_detection_all_eligible_known": 0.32098765432098764,
+      "sensitivity_scored": 0.3270440251572327,
+      "specificity_scored": 0.8580786026200873,
+      "brier": 0.10304289936748509,
+      "mean_predicted_risk": 0.09280522176021844,
+      "observed_risk": 0.12193251533742332,
+      "auroc": 0.6314657658399935,
+      "average_precision": 0.23520165933096696
+    },
+    "vitals": {
+      "known_endpoints": 2642,
+      "events": 324,
+      "scored_known": 2608,
+      "events_in_scored": 318,
+      "events_in_indeterminate": 6,
+      "recorded_deaths_with_alert": 187,
+      "alerts_with_known_endpoint": 917,
+      "ppv": 0.2039258451472192,
+      "event_detection_all_eligible_known": 0.5771604938271605,
+      "sensitivity_scored": 0.5880503144654088,
+      "specificity_scored": 0.6812227074235808,
+      "brier": 0.10097935039390403,
+      "mean_predicted_risk": 0.12559747798171664,
+      "observed_risk": 0.12193251533742332,
+      "auroc": 0.6724465134162754,
+      "average_precision": 0.2635908447174826
+    },
+    "lactate": {
+      "known_endpoints": 2642,
+      "events": 324,
+      "scored_known": 2608,
+      "events_in_scored": 318,
+      "events_in_indeterminate": 6,
+      "recorded_deaths_with_alert": 222,
+      "alerts_with_known_endpoint": 1182,
+      "ppv": 0.18781725888324874,
+      "event_detection_all_eligible_known": 0.6851851851851852,
+      "sensitivity_scored": 0.6981132075471698,
+      "specificity_scored": 0.5807860262008734,
+      "brier": 0.09857047418331456,
+      "mean_predicted_risk": 0.14454700692655476,
+      "observed_risk": 0.12193251533742332,
+      "auroc": 0.704578286781467,
+      "average_precision": 0.3089923149092424
+    }
+  }
+}
+; const PRESENTER_SCRIPT = [
+  {
+    "time": "0:00–0:25",
+    "blocks": [
+      {
+        "time": "0:00–0:25",
+        "title": "The clinical question",
+        "beats": [
+          [
+            "Stay on The clinical question. Point to the 24 h marker.",
+            "An ICU team can act on only so many alerts. Can measured lactate help flag more patients who later die within that limit? We score risk 24 hours after suspected infection and track recorded deaths over the following seven days."
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "time": "0:25–1:05",
+    "blocks": [
+      {
+        "time": "0:25–1:05",
+        "title": "The patient snapshot",
+        "beats": [
+          [
+            "Click Explore a case and select Elevated lactate. Point to 31.6%.",
+            "This is a synthetic case. With lactate measured at 4.2 millimoles per liter, the estimated risk is 31.6 percent."
+          ],
+          [
+            "Click Missing lactate. Point to 18.3%.",
+            "Remove the lactate value and keep the other inputs fixed. The model falls back to organ function and vital signs, and the estimate changes to 18.3 percent."
+          ],
+          [
+            "Click Insufficient organ data. Leave this case selected.",
+            "With only one observed organ component, the model cannot generate a score."
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "time": "1:05–1:29",
+    "blocks": [
+      {
+        "time": "1:05–1:29",
+        "title": "Alerts and review",
+        "beats": [
+          [
+            "Click See the alert and review route. Select Original priority alerts only.",
+            "With the original alert policy, this case has no score and generates no alert."
+          ],
+          [
+            "Select 100% earlier-reference capture target.",
+            "The second tier sends the case for data review. That 100 percent target was set in the earlier reference cohort."
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "time": "1:29–2:44",
+    "blocks": [
+      {
+        "time": "1:29–2:08",
+        "title": "Cohort evidence at equal alert volume",
+        "beats": [
+          [
+            "Click Cohort evidence, then Matched alert volume. Keep the slider at 20%. Point to 130 and 149.",
+            "Now look at the later Amsterdam cohort. Both strategies ranked the same admissions, with 521 alert slots each. Organ function and vital signs flagged 130 of the 318 recorded deaths. Adding measured lactate raised that to 149. That is 19 more deaths flagged at the same workload, a gain of six percentage points. Even with lactate, 169 deaths went unflagged."
+          ]
+        ]
+      },
+      {
+        "time": "2:08–2:44",
+        "title": "Cohort evidence on review workload",
+        "beats": [
+          [
+            "Click Fixed alerts and review. Point to 1,402 additional reviews, then 97.8%. Pause briefly.",
+            "Now count workload across all 2,642 eligible admissions. The frozen cutoff generated 1,182 alerts and flagged 222 of 324 deaths. The second tier brought that to 319 deaths flagged and required 1,402 additional reviews. Overall, 97.8 percent of admissions entered an alert or review queue, and five deaths still went unflagged."
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "time": "2:44–3:00",
+    "blocks": [
+      {
+        "time": "2:44–3:00",
+        "title": "External evaluation",
+        "beats": [
+          [
+            "Click External evaluation. Leave the model link visible.",
+            "Our next step is to test whether lactate improves alert ranking at another hospital, at a workload its ICU team can sustain. Thank you."
+          ]
+        ]
+      }
+    ]
+  }
+]
+;</script><script>(function (root) {
+  'use strict';
+
+  const AGE = {'18-39': 28.5, '40-49': 44.5, '50-59': 54.5, '60-69': 64.5, '70-79': 74.5, '80+': 85};
+  const RANGES = {map_median: [20, 180], hr_median: [20, 300], rr_median: [3, 100], lactate_latest: [0.1, 40]};
+
+  function numeric(value) {
+    if (value === '' || value === null || value === undefined) return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  function normalize(raw) {
+    const values = {...raw};
+    const missing = [];
+    const errors = [];
+    values.snapshot_hour = numeric(raw.snapshot_hour);
+    values.sofa_components = numeric(raw.sofa_components);
+    values.sofa_observed = numeric(raw.sofa_observed);
+    if (values.snapshot_hour !== 24) errors.push('time');
+    if (!Number.isInteger(values.sofa_components) || values.sofa_components < 0 || values.sofa_components > 6) errors.push('components');
+    if (values.sofa_observed !== null && (values.sofa_observed < 0 || values.sofa_observed > values.sofa_components * 4)) errors.push('organ');
+    for (const [key, [low, high]] of Object.entries(RANGES)) {
+      values[key] = numeric(raw[key]);
+      if (values[key] !== null && (values[key] < low || values[key] > high)) {
+        values[key] = null;
+        missing.push(key);
+      }
+    }
+    values.age_midpoint = AGE[raw.age_group] ?? null;
+    return {values, missing, errors};
+  }
+
+  function logistic(x) {
+    return x >= 0 ? 1 / (1 + Math.exp(-x)) : Math.exp(x) / (1 + Math.exp(x));
+  }
+
+  function predict(values, model, policy) {
+    let linear = null;
+    let route = 'indeterminate';
+    const allowed = {organ: ['organ'], vitals: ['organ', 'vitals'], lactate: ['organ', 'vitals', 'lactate']}[policy];
+    for (const name of allowed) {
+      const component = model.components[name];
+      const features = Object.keys(component.coefficients);
+      const supported = values.sofa_components >= 2 && features.every(key => Number.isFinite(values[key]));
+      if (!supported) continue;
+      linear = component.intercept;
+      for (const key of features) linear += component.coefficients[key] * values[key];
+      route = name;
+    }
+    const calibration = model.policies[policy];
+    return {risk: linear === null ? null : logistic(calibration.intercept + calibration.slope * linear), route};
+  }
+
+  function evaluate(raw, data, reviewTarget = '0') {
+    const input = normalize(raw);
+    if (input.errors.length) return {...input, state: 'invalid', results: {}, risk: null, reviewRisk: null};
+    const results = Object.fromEntries(['organ', 'vitals', 'lactate'].map(policy => [policy, predict(input.values, data.baseline, policy)]));
+    const primary = results.lactate;
+    const age = predict(input.values, data.ageModel, 'lactate');
+    const reviewRisk = age.risk ?? primary.risk;
+    const urgent = primary.risk !== null && primary.risk >= data.baseline.policies.lactate.threshold;
+    const reviewEnabled = reviewTarget !== '0';
+    const cutoff = data.reviewPolicies[reviewTarget]?.cutoff ?? null;
+    let state = 'below';
+    if (urgent) state = 'urgent';
+    else if (primary.risk === null) state = reviewEnabled ? 'dataReview' : 'unscored';
+    else if (reviewEnabled && cutoff !== null && reviewRisk >= cutoff) state = 'review';
+    return {...input, results, ...primary, reviewRisk, ageUsed: age.risk !== null, reviewTarget, cutoff, state};
+  }
+
+  const api = {normalize, predict, evaluate};
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  root.SepsisEngine = api;
+})(typeof window === 'undefined' ? globalThis : window);
+</script><script>(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const data = DEMO_DATA;
+  let language = 'zh';
+  let currentScene = 0;
+  let selectedCase = 'high';
+  let lastLactate = '4.2';
+  let evidenceMode = 'ranking';
+  const fieldIds = ['sofa_observed', 'sofa_components', 'map_median', 'hr_median', 'rr_median', 'lactate_latest', 'age_group', 'snapshot_hour'];
+  const cases = {
+    high: {sofa_observed: 8, sofa_components: 5, map_median: 66, hr_median: 116, rr_median: 29, lactate_latest: 4.2, age_group: '60-69', snapshot_hour: 24},
+    missing: {sofa_observed: 8, sofa_components: 5, map_median: 66, hr_median: 116, rr_median: 29, lactate_latest: '', age_group: '60-69', snapshot_hour: 24},
+    organ: {sofa_observed: 8, sofa_components: 5, map_median: '', hr_median: '', rr_median: '', lactate_latest: '', age_group: '60-69', snapshot_hour: 24},
+    insufficient: {sofa_observed: 3, sofa_components: 1, map_median: 66, hr_median: 116, rr_median: 29, lactate_latest: 4.2, age_group: '60-69', snapshot_hour: 24},
+    lower: {sofa_observed: 2, sofa_components: 6, map_median: 92, hr_median: 78, rr_median: 16, lactate_latest: 0.9, age_group: '40-49', snapshot_hour: 24},
+    unknownAge: {sofa_observed: 2, sofa_components: 6, map_median: 92, hr_median: 78, rr_median: 16, lactate_latest: 0.9, age_group: '', snapshot_hour: 24},
+  };
+  const sceneNames = [
+    ['临床问题', 'The clinical question'], ['监测快照', 'The patient snapshot'],
+    ['警报与复核', 'Alerts and review'], ['队列证据', 'Cohort evidence'], ['外部验证', 'External evaluation'],
+  ];
+  const stateLabels = {
+    urgent: ['进入优先复核列表', 'Flag for priority review'],
+    review: ['进入第二层复核列表', 'Assign to the second review tier'],
+    dataReview: ['资料不足，进入复核列表', 'Insufficient data, assign to review'],
+    unscored: ['资料不足，无法生成评分', 'Insufficient data to score'],
+    below: ['尚未触发当前警报或复核阈值', 'Below the current alert and review cutoffs'],
+    invalid: ['请核对评估时点与器官输入', 'Check the assessment time and organ inputs'],
+  };
+
+  function t(zh, en) { return language === 'zh' ? zh : en; }
+  function pair(values) { return t(...values); }
+  function pct(value, places = 1) { return Number.isFinite(value) ? (100 * value).toFixed(places) + '%' : '—'; }
+  function count(value) { return Number.isInteger(value) ? value.toLocaleString('en-US') : value.toLocaleString('en-US', {maximumFractionDigits: 1}); }
+  function modelName(name) { return {organ: t('器官功能', 'Organ function'), vitals: t('加生命体征', 'Add vital signs'), lactate: t('加实测乳酸', 'Add measured lactate'), indeterminate: t('无法评分', 'Unscored')}[name]; }
+  function rawInputs() { return Object.fromEntries(fieldIds.map(id => [id, $(id).value])); }
+
+  function translate() {
+    document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en';
+    document.title = t('Sepsis Research · 从监测到复核', 'Sepsis Research · From data to review');
+    document.querySelectorAll('[data-zh][data-en]').forEach(element => { element.textContent = element.dataset[language]; });
+    $('language').textContent = language === 'zh' ? 'EN' : '中文';
+    $('sceneNav').setAttribute('aria-label', t('路演场景', 'Presentation scenes'));
+    $('currentScene').textContent = pair(sceneNames[currentScene]);
+    updateSnapshot();
+    updateRanking();
+    updateFixed();
+    updateNav();
+  }
+
+  function updateNav() {
+    document.querySelectorAll('#sceneNav button').forEach(button => {
+      const active = Number(button.dataset.scene) === currentScene;
+      button.classList.toggle('active', active);
+      if (active) button.setAttribute('aria-current', 'step');
+      else button.removeAttribute('aria-current');
+    });
+    document.querySelectorAll('#sceneDots button').forEach((button, index) => {
+      button.classList.toggle('active', index === currentScene);
+      button.setAttribute('aria-label', pair(sceneNames[index]));
+    });
+    $('previous').disabled = currentScene === 0;
+    $('next').textContent = currentScene === 4 ? t('回到开场', 'Back to opening') : t('下一幕', 'Next');
+    $('stepNumber').textContent = `${currentScene + 1} / 5`;
+    $('currentScene').textContent = pair(sceneNames[currentScene]);
+    updatePresenterNotes();
+  }
+
+  function updatePresenterNotes() {
+    const scene = PRESENTER_SCRIPT[currentScene];
+    $('presenterTime').textContent = `${pair(sceneNames[currentScene])} · ${scene.time}`;
+    $('presenterScript').replaceChildren();
+    for (const block of scene.blocks) {
+      if (scene.blocks.length > 1) {
+        const title = document.createElement('h3');
+        title.className = 'presenter-block-title';
+        title.textContent = `${block.time} · ${block.title}`;
+        $('presenterScript').append(title);
+      }
+      for (const [cue, spoken] of block.beats) {
+        const step = document.createElement('div');
+        step.className = 'presenter-step';
+        const action = document.createElement('p');
+        action.className = 'presenter-cue';
+        const label = document.createElement('strong');
+        label.textContent = 'On screen';
+        action.append(label, document.createTextNode(` ${cue}`));
+        const speech = document.createElement('p');
+        speech.className = 'presenter-line';
+        speech.textContent = spoken;
+        step.append(action, speech);
+        $('presenterScript').append(step);
+      }
+    }
+  }
+
+  function setNotesOpen(open) {
+    $('presenterNotes').hidden = !open;
+    $('notesToggle').setAttribute('aria-expanded', String(open));
+  }
+
+  function showScene(index) {
+    currentScene = Math.max(0, Math.min(4, index));
+    setNotesOpen(false);
+    for (let i = 0; i < 5; i++) $('scene' + i).hidden = i !== currentScene;
+    updateNav();
+    if (currentScene === 3) requestAnimationFrame(drawChart);
+    window.scrollTo({top: 0, behavior: 'instant'});
+  }
+
+  function applyCase(name) {
+    selectedCase = name;
+    for (const id of fieldIds) $(id).value = cases[name][id];
+    if (cases[name].lactate_latest !== '') lastLactate = String(cases[name].lactate_latest);
+    updateSnapshot();
+  }
+
+  function describe(result) {
+    if (result.state === 'invalid') {
+      if (result.errors.includes('time')) return t('这个固定模型仅支持疑似感染后 24 h 的合规监测快照。', 'This frozen model supports a valid 24-hour snapshot after suspected infection.');
+      return t('器官数量需为 0–6 的整数，部分评分不能超过已观测器官数量的 4 倍。', 'The observed component count must be an integer from 0 to 6. The sum cannot exceed four times that count.');
+    }
+    return {
+      urgent: t('原固定模型已达到优先警报阈值。研究演示将此病例列入优先复核。', 'The frozen model meets the original priority cutoff. The research demo flags this case for priority review.'),
+      review: t('原优先警报未触发，探索性年龄模型的分值达到第二层复核阈值。', 'The original alert is not triggered. The exploratory age score meets the second-tier review cutoff.'),
+      dataReview: t('已观测器官资料不足。开启复核策略后，这类病例直接进入资料复核。', 'Observed organ data are insufficient. With the review policy enabled, these cases are assigned to data review.'),
+      unscored: t('至少需要两项已观测器官评分。补齐资料后才可计算风险。', 'At least two observed organ components are required. Complete the inputs before calculating risk.'),
+      below: t('当前合成病例未达到所选阈值。临床团队仍需按病情继续评估。', 'The synthetic case is below the selected cutoffs. The clinical team would continue assessment according to the patient’s condition.'),
+    }[result.state];
+  }
+
+  function updateSnapshot() {
+    const result = SepsisEngine.evaluate(rawInputs(), data, $('reviewTarget').value);
+    document.querySelectorAll('#casePills button').forEach(button => button.classList.toggle('selected', button.dataset.case === selectedCase));
+    $('riskValue').innerHTML = result.risk === null ? '—' : `${(result.risk * 100).toFixed(1)}<span>%</span>`;
+    document.querySelector('.risk-orbit').style.setProperty('--risk', result.risk === null ? 0 : result.risk * 100);
+    $('snapshotState').className = `state-banner ${result.state}`;
+    $('snapshotState').textContent = pair(stateLabels[result.state]);
+    $('decisionState').textContent = pair(stateLabels[result.state]);
+    $('decisionDescription').textContent = describe(result);
+    $('decisionRisk').textContent = pct(result.risk);
+    const baseline = result.results.lactate;
+    const routes = ['organ', 'vitals', 'lactate'];
+    $('routes').innerHTML = routes.map(route => {
+      const supported = baseline && routes.indexOf(baseline.route) >= routes.indexOf(route);
+      const label = supported ? t('可用', 'Available') : t('未使用', 'Not used');
+      return `<div class="route-item ${supported ? 'used' : ''}"><span>${modelName(route)}</span><strong>${label}</strong></div>`;
+    }).join('');
+    let message = result.errors.length ? describe(result) : result.risk === null ? describe(result) : t(`当前使用${modelName(result.route)}路径。原优先警报阈值为 ${pct(data.baseline.policies.lactate.threshold, 2)}。`, `Current route: ${modelName(result.route)}. The original priority cutoff is ${pct(data.baseline.policies.lactate.threshold, 2)}.`);
+    if (result.missing.length) message += t(' 超出预设范围的生命体征或乳酸已视为缺失。', ' Vital signs or lactate outside the protocol range are treated as missing.');
+    $('inputMessage').textContent = message;
+    $('toggleLactate').textContent = $('lactate_latest').value === '' ? t('恢复乳酸测量', 'Restore lactate') : t('演示乳酸缺失', 'Remove lactate');
+    updatePathway(result);
+  }
+
+  function updatePathway(result) {
+    const enabled = $('reviewTarget').value !== '0';
+    const priorityCutoff = data.baseline.policies.lactate.threshold;
+    const active = result.state === 'urgent' ? 1 : ['review', 'dataReview'].includes(result.state) ? 2 : 0;
+    const route = result.results.lactate?.route ?? 'indeterminate';
+    const lines = [
+      [t('检查输入和模型适用时点', 'Check inputs and assessment time'), result.errors.length ? describe(result) : t(`24 h 快照 · 已观测器官 ${result.values.sofa_components}/6 · ${modelName(route)}`, `24 h snapshot · observed organs ${result.values.sofa_components}/6 · ${modelName(route)}`)],
+      [t('判断原优先警报', 'Apply the original priority cutoff'), `${t('估计风险', 'Estimated risk')} ${pct(result.risk)} ${t('与固定阈值', 'against cutoff')} ${pct(priorityCutoff, 2)}`],
+      [t('按所选策略安排额外复核', 'Apply the selected review policy'), enabled ? `${t('复核评分', 'Review score')} ${pct(result.reviewRisk)} · ${t('阈值', 'cutoff')} ${pct(result.cutoff, 2)}${result.ageUsed ? '' : t(' · 年龄未知时回退原分值', ' · original score used if age unavailable')}` : t('当前选择仅原优先警报。', 'Original priority alerts only are selected.')],
+    ];
+    $('pathway').innerHTML = lines.map(([title, body], i) => `<div class="path-step ${i === active && !result.errors.length ? 'active' : ''}"><span class="path-node">${i + 1}</span><div><strong>${title}</strong><p>${body}</p>${i === active && !result.errors.length ? `<span class="path-out">${pair(stateLabels[result.state])}</span>` : ''}</div></div>`).join('');
+    const row = enabled ? data.reviewPolicies[$('reviewTarget').value].later_evaluation : data.frozen;
+    $('reviewMetrics').innerHTML = `<div><strong>${count(row.any_alert_or_review)} / 2,642</strong><span>${t('历史队列警报或复核量', 'Historical alerts or reviews')}</span></div><div><strong>${324 - row['7d_deaths_missed']} / 324</strong><span>${t('历史队列记录死亡覆盖', 'Recorded deaths captured in the cohort')}</span></div>`;
+  }
+
+  function updateRanking() {
+    const budget = Number($('budget').value);
+    const point = data.curves.find(row => row.budget === budget);
+    $('budgetLabel').textContent = budget + '%';
+    $('slots').textContent = count(point.slots);
+    $('rankingRows').innerHTML = ['organ', 'vitals', 'lactate'].map(name => {
+      const captured = point.captured[name];
+      return `<div class="rank-row"><div class="rank-heading"><span>${modelName(name)}</span><strong>${count(captured)}<small> / 318</small></strong></div><div class="rank-track"><span class="${name}" style="width:${captured / 318 * 100}%"></span></div><small class="micro">${t('未标记死亡', 'Unflagged deaths')} ${count(318 - captured)}</small></div>`;
+    }).join('');
+    const delta = point.captured.lactate - point.captured.vitals;
+    $('rankingGain').textContent = t(`加入乳酸 ${delta >= 0 ? '增加' : '减少'}标记 ${count(Math.abs(delta))} 次死亡`, `Adding lactate ${delta >= 0 ? 'flags ' : 'flags fewer by '}${count(Math.abs(delta))}${delta >= 0 ? ' additional deaths' : ' deaths'}`);
+    $('capacityNote').textContent = budget === 20 ? t('配对检出率差 6.0 个百分点，患者聚类 bootstrap 95% CI 1.5–10.3。', 'Paired capture difference 6.0 percentage points. Patient-cluster bootstrap 95% CI 1.5–10.3.') : t('容量变化后的描述性重排。该容量下未单独估计差异的置信区间。', 'Descriptive re-ranking at this capacity. A confidence interval was not separately estimated here.');
+    requestAnimationFrame(drawChart);
+  }
+
+  function updateFixed() {
+    const full = data.reviewPolicies['1.0'].later_evaluation;
+    $('fixedRows').innerHTML = [[t('原固定阈值', 'Original frozen cutoff'), data.frozen], [t('加探索性年龄复核', 'Add exploratory age review'), full]].map(([label, row]) => {
+      const urgent = 100 * row.urgent_alerts / 2642;
+      const extra = row.any_alert_or_review - row.urgent_alerts;
+      return `<div class="workload-item"><div><strong>${label}</strong><span class="workload-total">${row.per_100_stays_alert_or_review.toFixed(1)}%</span></div><div class="workload-track"><span style="width:${urgent}%"></span><span style="width:${100 * extra / 2642}%"></span></div><p class="workload-stats"><b>${324 - row['7d_deaths_missed']}/324</b> ${t('次死亡被标记', 'deaths flagged')} · <b>${row['7d_deaths_missed']}</b> ${t('次未标记', 'unflagged')}<br>${count(row.urgent_alerts)} ${t('条优先警报', 'priority alerts')}${extra ? ` + ${count(extra)} ${t('次额外复核', 'additional reviews')}` : ''}</p></div>`;
+    }).join('');
+  }
+
+  function drawChart() {
+    const canvas = $('capacityChart');
+    if (currentScene !== 3 || evidenceMode !== 'ranking') return;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width < 1) return;
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(rect.width * ratio);
+    canvas.height = Math.round(rect.height * ratio);
+    const c = canvas.getContext('2d');
+    c.scale(ratio, ratio);
+    const width = rect.width;
+    const height = rect.height;
+    const pad = {left: 40, top: 21, right: 13, bottom: 39};
+    const x = budget => pad.left + (width - pad.left - pad.right) * budget / 100;
+    const y = capture => height - pad.bottom - (height - pad.top - pad.bottom) * capture / 318;
+    c.font = '10px Inter, sans-serif';
+    c.fillStyle = '#627c8b';
+    c.textAlign = 'right';
+    for (const value of [0, 25, 50, 75, 100]) {
+      const yy = y(value / 100 * 318);
+      c.strokeStyle = '#e5edf1'; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(pad.left, yy); c.lineTo(width - pad.right, yy); c.stroke();
+      c.fillText(value + '%', pad.left - 7, yy + 3);
+    }
+    c.textAlign = 'center';
+    for (const value of [0, 20, 40, 60, 80, 100]) c.fillText(value + '%', x(value), height - pad.bottom + 18);
+    c.textAlign = 'left'; c.font = '10px Inter, PingFang SC, sans-serif';
+    c.fillText(t('记录死亡检出率', 'Recorded death capture'), 0, 9);
+    c.textAlign = 'right'; c.fillText(t('警报容量', 'Alert capacity'), width - pad.right, height - 1);
+    const budget = Number($('budget').value);
+    c.setLineDash([3, 4]); c.strokeStyle = '#bdd2d7';
+    c.beginPath(); c.moveTo(x(budget), pad.top); c.lineTo(x(budget), height - pad.bottom); c.stroke(); c.setLineDash([]);
+    const colors = {organ: '#a3b1c2', vitals: '#6683a7', lactate: '#087f83'};
+    for (const name of ['organ', 'vitals', 'lactate']) {
+      c.strokeStyle = colors[name]; c.lineWidth = name === 'lactate' ? 2.6 : 1.8;
+      c.beginPath(); c.moveTo(x(0), y(0));
+      for (const point of data.curves) c.lineTo(x(point.budget), y(point.captured[name]));
+      c.stroke();
+      const point = data.curves.find(row => row.budget === budget);
+      c.beginPath(); c.arc(x(budget), y(point.captured[name]), 4, 0, 2 * Math.PI); c.fillStyle = colors[name]; c.fill(); c.strokeStyle = '#fff'; c.lineWidth = 1.5; c.stroke();
+    }
+    const point = data.curves.find(row => row.budget === budget);
+    canvas.setAttribute('aria-label', t(`${budget}% 警报容量，器官 ${count(point.captured.organ)}、生命体征 ${count(point.captured.vitals)}、乳酸 ${count(point.captured.lactate)} 次死亡被标记，总死亡 318。`, `At ${budget}% alert capacity, organ ${count(point.captured.organ)}, vitals ${count(point.captured.vitals)}, lactate ${count(point.captured.lactate)} deaths flagged out of 318.`));
+  }
+
+  let toastTimer;
+  function toast(message) {
+    $('toast').textContent = message; $('toast').hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 4000);
+  }
+
+  document.querySelectorAll('[data-scene]').forEach(button => button.addEventListener('click', () => showScene(Number(button.dataset.scene))));
+  for (let i = 0; i < 5; i++) {
+    const button = document.createElement('button'); button.addEventListener('click', () => showScene(i)); $('sceneDots').append(button);
+  }
+  for (const id of fieldIds) $(id).addEventListener('input', () => { selectedCase = null; updateSnapshot(); });
+  document.querySelectorAll('[data-case]').forEach(button => button.addEventListener('click', () => applyCase(button.dataset.case)));
+  $('language').addEventListener('click', () => { language = language === 'zh' ? 'en' : 'zh'; translate(); });
+  $('startDemo').addEventListener('click', () => { applyCase('high'); showScene(1); });
+  $('toDecision').addEventListener('click', () => showScene(2));
+  $('editSnapshot').addEventListener('click', () => showScene(1));
+  $('toValidation').addEventListener('click', () => showScene(4));
+  $('restart').addEventListener('click', () => { applyCase('high'); $('budget').value = '20'; updateRanking(); showScene(0); });
+  $('previous').addEventListener('click', () => showScene(currentScene - 1));
+  $('next').addEventListener('click', () => showScene(currentScene === 4 ? 0 : currentScene + 1));
+  $('budget').addEventListener('input', updateRanking);
+  $('reviewTarget').addEventListener('change', updateSnapshot);
+  $('toggleLactate').addEventListener('click', () => {
+    if ($('lactate_latest').value === '') $('lactate_latest').value = lastLactate;
+    else { lastLactate = $('lactate_latest').value; $('lactate_latest').value = ''; }
+    selectedCase = null; updateSnapshot();
+  });
+  $('notesToggle').addEventListener('click', () => {
+    const open = $('presenterNotes').hidden;
+    setNotesOpen(open);
+    if (open) $('presenterNotes').scrollIntoView({block: 'nearest'});
+  });
+  $('closeNotes').addEventListener('click', () => {
+    setNotesOpen(false);
+    $('notesToggle').focus();
+  });
+  document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => {
+    evidenceMode = button.dataset.mode;
+    document.querySelectorAll('[data-mode]').forEach(item => item.classList.toggle('selected', item === button));
+    $('rankingView').hidden = evidenceMode !== 'ranking'; $('fixedView').hidden = evidenceMode !== 'fixed';
+    requestAnimationFrame(drawChart);
+  }));
+  $('fullscreen').addEventListener('click', async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch { toast(t('当前窗口不支持全屏，可使用浏览器演示模式。', 'Full screen is unavailable in this window. Use the browser presentation mode.')); }
+  });
+  $('copyUrl').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(data.github); toast(t('已复制完整 GitHub 网址', 'Full GitHub URL copied')); }
+    catch { $('fullUrl').parentElement.open = true; const selection = window.getSelection(); const range = document.createRange(); range.selectNodeContents($('fullUrl')); selection.removeAllRanges(); selection.addRange(range); toast(t('已选中网址，可按 Ctrl/Cmd+C 复制', 'URL selected. Press Ctrl/Cmd+C to copy')); }
+  });
+  document.addEventListener('keydown', event => {
+    if (event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|SELECT|TEXTAREA)$/.test(event.target.tagName)) return;
+    if (event.key === 'ArrowRight') { event.preventDefault(); showScene(currentScene === 4 ? 0 : currentScene + 1); }
+    if (event.key === 'ArrowLeft') { event.preventDefault(); showScene(currentScene - 1); }
+  });
+  window.addEventListener('resize', () => requestAnimationFrame(drawChart));
+  for (const id of ['repoLink', 'railGithub']) $(id).href = data.github;
+  $('fullUrl').textContent = data.github;
+  translate();
+})();
+</script>
+</body></html>
